@@ -82,6 +82,8 @@ DRIVER_SOURCES = \
 	$(FLARM_SOURCES) \
 	$(FLYTEC_SOURCES) \
 	$(VEGA_SOURCES) \
+	$(DRIVER_SRC_DIR)/AkafSensor.cpp \
+        $(DRIVER_SRC_DIR)/OpenVario.cpp \
 	$(DRIVER_SRC_DIR)/AltairPro.cpp \
 	$(DRIVER_SRC_DIR)/BlueFlyVario.cpp \
 	$(DRIVER_SRC_DIR)/BorgeltB50.cpp \
