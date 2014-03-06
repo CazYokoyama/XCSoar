@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -36,7 +36,9 @@ MapVehicleTypeToLifetrack24(TrackingSettings::VehicleType vt)
     LiveTrack24::VehicleType::GLIDER,
     LiveTrack24::VehicleType::PARAGLIDER,
     LiveTrack24::VehicleType::POWERED_AIRCRAFT,
-    LiveTrack24::VehicleType::HOT_AIR_BALLOON
+    LiveTrack24::VehicleType::HOT_AIR_BALLOON,
+    LiveTrack24::VehicleType::FLEX_WING_FAI1,
+    LiveTrack24::VehicleType::RIGID_WING_FAI5,
   };
 
   unsigned vti = (unsigned) vt;
@@ -50,7 +52,8 @@ MapVehicleTypeToLifetrack24(TrackingSettings::VehicleType vt)
 
 TrackingGlue::TrackingGlue()
 #ifdef HAVE_LIVETRACK24
-  :last_timestamp(0),
+  :StandbyThread("Tracking"),
+   last_timestamp(0),
    flying(false)
 #endif
 {

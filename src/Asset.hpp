@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -207,12 +207,19 @@ HasIOIOLib()
  * @return True if a touch screen or mouse is assumed for the hardware
  * that XCSoar is running on, False if the hardware has only buttons
  */
+#if defined(USE_CONSOLE) && !defined(KOBO)
+gcc_pure
+bool
+HasPointer();
+#else
 constexpr
 static inline bool
 HasPointer()
 {
   return !IsAltair();
 }
+
+#endif
 
 /**
  * Does this device have a touch screen?  This is useful to know for

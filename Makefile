@@ -48,6 +48,9 @@
 #
 #   LLVM        "y" to compile LLVM bitcode with clang
 #
+#   WGS84       "y" to use WGS84 instead of FAI sphere for distance calculations.
+#               This is enabled by default.
+#
 #   LIBCXX      "y" to compile with libc++, or the absolute path of the
 #               libc++ svn/git working directory.
 #
@@ -145,6 +148,8 @@ include $(topdir)/build/main.mk
 include $(topdir)/build/kobo.mk
 include $(topdir)/build/test.mk
 include $(topdir)/build/hot.mk
+
+include $(topdir)/build/python.mk
 
 # Load local-config a second time
 # to set (override) choices for GXX and friends.

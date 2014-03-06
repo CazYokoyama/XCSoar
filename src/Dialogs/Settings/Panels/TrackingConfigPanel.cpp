@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -144,6 +144,8 @@ static constexpr StaticEnumChoice vehicle_type_list[] = {
   { (unsigned) TrackingSettings::VehicleType::PARAGLIDER, N_("Paraglider") },
   { (unsigned) TrackingSettings::VehicleType::POWERED_AIRCRAFT, N_("Powered aircraft") },
   { (unsigned) TrackingSettings::VehicleType::HOT_AIR_BALLOON, N_("Hot-air balloon") },
+  { (unsigned) TrackingSettings::VehicleType::HANGGLIDER_FLEX, N_("Hangglider (Flex/FAI1)") },
+  { (unsigned) TrackingSettings::VehicleType::HANGGLIDER_RIGID, N_("Hangglider (Rigid/FAI5)") },
   { 0 },
 };
 

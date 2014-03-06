@@ -5,6 +5,7 @@ SUMMARY OF NEW FEATURES AND BUG FIXES SINCE V4.0
 Version 6.8 - not yet released
 * calculations
   - use maximum speed configured in plane setup as limit for calculations
+  - use WGS84 earth ellipsoid for distance calculations (#2809)
 * airspace cross-section
   - sync map & cross-section view zoom setting (#2913)
 * infoboxes
@@ -17,6 +18,14 @@ Version 6.8 - not yet released
 * Kobo
   - add UI allowing the start of external scripts to KoboMenu (#3194)
   - support Wifi with WEP (#3138)
+  - support USB-OTG
+
+Version 6.7.4 - not yet released
+* map
+  - fix topography rendering for polygon shapes (#3245)
+  - fix SDL clipped polygon rendering algorithm (#3250)
+* devices
+  - Westerboer: ignore implausible values from buggy devices
 
 Version 6.7.3 - 2014/01/22
 * tracking

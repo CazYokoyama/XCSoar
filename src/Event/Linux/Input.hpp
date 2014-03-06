@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -27,8 +27,9 @@ Copyright_License {
 #include "OS/FileDescriptor.hpp"
 #include "IO/Async/FileEventHandler.hpp"
 
-class EventQueue;
 class IOLoop;
+class EventQueue;
+class MergeMouse;
 struct Event;
 
 /**
@@ -43,8 +44,11 @@ class LinuxInputDevice final : private FileEventHandler {
     }
   };
 
-  EventQueue &queue;
   IOLoop &io_loop;
+
+  EventQueue &queue;
+
+  MergeMouse &merge;
 
   /**
    * The position being edited.  Upon EV_SYN, it will be copied to
@@ -57,6 +61,8 @@ class LinuxInputDevice final : private FileEventHandler {
    */
   Position public_position;
 
+  int rel_x, rel_y;
+
   bool down;
 
   /**
@@ -65,27 +71,19 @@ class LinuxInputDevice final : private FileEventHandler {
   bool moving;
 
   /**
-   * Does #public_position contain a new value?  This is copied from
-   * #moving on EV_SYN and will be picked up by Generate().
-   */
-  bool moved;
-
-  /**
    * Was the finger pressed or released, but not yet committed with
    * EV_SYN/SYN_REPORT?
    */
   bool pressing, releasing;
 
-  /**
-   * Copy of #pressing / #releasing after EV_SYN/SYN_REPORT.
-   */
-  bool pressed, released;
+  bool is_pointer;
 
   FileDescriptor fd;
 
 public:
-  explicit LinuxInputDevice(EventQueue &_queue, IOLoop &_io_loop)
-    :queue(_queue), io_loop(_io_loop),
+  explicit LinuxInputDevice(IOLoop &_io_loop, EventQueue &_queue,
+                            MergeMouse &_merge)
+    :io_loop(_io_loop), queue(_queue), merge(_merge),
      edit_position(Position::Zero()), public_position(Position::Zero()) {}
 
   ~LinuxInputDevice() {
@@ -98,8 +96,6 @@ public:
   bool IsOpen() const {
     return fd.IsDefined();
   }
-
-  Event Generate();
 
 private:
   void Read();

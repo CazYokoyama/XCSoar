@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -36,14 +36,14 @@ DrawArrow(Canvas &canvas, RasterPoint point, const fixed mag, const Angle angle)
 {
   const FastRotation r(angle);
 
-  FastRotation::Pair p = r.Rotate(mag, fixed(0));
-  canvas.DrawLine(point, point + RasterPoint((int)p.first, (int)p.second));
+  auto p = r.Rotate(mag, fixed(0));
+  canvas.DrawLine(point, point + RasterPoint((int)p.x, (int)p.y));
 
   p = r.Rotate(mag - fixed(5), fixed(-3));
-  canvas.DrawLine(point, point + RasterPoint((int)p.first, (int)p.second));
+  canvas.DrawLine(point, point + RasterPoint((int)p.x, (int)p.y));
 
   p = r.Rotate(mag - fixed(5), fixed(3));
-  canvas.DrawLine(point, point + RasterPoint((int)p.first, (int)p.second));
+  canvas.DrawLine(point, point + RasterPoint((int)p.x, (int)p.y));
 }
 
 void

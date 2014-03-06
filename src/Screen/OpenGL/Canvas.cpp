@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -803,7 +803,7 @@ Canvas::CopyToTexture(GLTexture &texture, PixelRect src_rc) const
   texture.Bind();
   glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                       OpenGL::translate.x + src_rc.left,
-                      OpenGL::screen_height - OpenGL::translate.y - src_rc.bottom,
+                      OpenGL::screen_size.y - OpenGL::translate.y - src_rc.bottom,
                       src_rc.right - src_rc.left,
                       src_rc.bottom - src_rc.top);
 

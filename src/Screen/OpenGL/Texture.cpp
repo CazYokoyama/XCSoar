@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -184,7 +184,7 @@ GLTexture::DrawOES(PixelScalar dest_x, PixelScalar dest_y,
   /* glDrawTexiOES() circumvents the projection settings, thus we must
      roll our own translation */
   glDrawTexiOES(OpenGL::translate.x + dest_x,
-                OpenGL::screen_height - OpenGL::translate.y - dest_y - dest_height,
+                OpenGL::screen_size.y - OpenGL::translate.y - dest_y - dest_height,
                 0, dest_width, dest_height);
 }
 
@@ -244,7 +244,7 @@ GLTexture::DrawFlippedOES(PixelRect dest, PixelRect src) const
   /* glDrawTexiOES() circumvents the projection settings, thus we must
      roll our own translation */
   glDrawTexiOES(OpenGL::translate.x + dest.left,
-                OpenGL::screen_height - OpenGL::translate.y - dest.bottom,
+                OpenGL::screen_size.y - OpenGL::translate.y - dest.bottom,
                 0, dest.right - dest.left, dest.bottom - dest.top);
 }
 

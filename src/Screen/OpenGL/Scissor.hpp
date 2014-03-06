@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -33,12 +33,12 @@ class GLCanvasScissor : public GLScissor {
 public:
   GLCanvasScissor(const Canvas &canvas)
     :GLScissor(OpenGL::translate.x,
-               OpenGL::screen_height - OpenGL::translate.y - canvas.GetHeight(),
+               OpenGL::screen_size.y - OpenGL::translate.y - canvas.GetHeight(),
                canvas.GetWidth(), canvas.GetHeight()) {}
 
   explicit GLCanvasScissor(PixelRect rc)
     :GLScissor(OpenGL::translate.x + rc.left,
-               OpenGL::screen_height - OpenGL::translate.y - rc.bottom,
+               OpenGL::screen_size.y - OpenGL::translate.y - rc.bottom,
                rc.right - rc.top, rc.bottom - rc.top) {}
 };
 

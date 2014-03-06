@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -21,44 +21,39 @@ Copyright_License {
 }
 */
 
-#ifndef XCSOAR_MATH_FAST_PIXEL_ROTATION_HPP
-#define XCSOAR_MATH_FAST_PIXEL_ROTATION_HPP
+#ifndef XCSOAR_POINT2D_HPP
+#define XCSOAR_POINT2D_HPP
 
-#include "Math/FastRotation.hpp"
+template<typename T>
+struct Point2D {
+  T x, y;
 
-/**
- * Same as #FastIntegerRotation, but works with PixelScalar /
- * RasterPoint coordinates.
- */
-class FastPixelRotation {
-  FastIntegerRotation rotation;
+  Point2D() = default;
 
-public:
-  FastPixelRotation() = default;
-  FastPixelRotation(Angle angle):rotation(angle) {}
+  constexpr Point2D(T _x, T _y):x(_x), y(_y) {}
 
-  Angle GetAngle() const {
-    return rotation.GetAngle();
+  constexpr bool operator==(const Point2D<T> &other) const {
+    return x == other.x && y == other.y;
   }
 
-  void SetAngle(Angle angle) {
-    rotation.SetAngle(angle);
+  constexpr bool operator!=(const Point2D<T> &other) const {
+    return !(*this == other);
   }
 
-  const FastPixelRotation &operator =(Angle angle) {
-    SetAngle(angle);
+  constexpr Point2D<T> operator+(Point2D<T> other) const {
+    return { T(x + other.x), T(y + other.y) };
+  }
+
+  Point2D<T> &operator+=(Point2D<T> other) {
+    x += other.x;
+    y += other.y;
     return *this;
   }
 
-  gcc_pure
-  RasterPoint Rotate(int x, int y) const {
-    auto result = rotation.Rotate(x, y);
-    return RasterPoint{result.first, result.second};
-  }
-
-  gcc_pure
-  RasterPoint Rotate(const RasterPoint pt) const {
-    return Rotate(pt.x, pt.y);
+  Point2D<T> &operator-=(Point2D<T> other) {
+    x -= other.x;
+    y -= other.y;
+    return *this;
   }
 };
 

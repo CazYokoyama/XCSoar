@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -298,7 +298,8 @@ TopographyFileRenderer::Paint(Canvas &canvas,
                          triangles);
       }
 #else // !ENABLE_OPENGL
-      for (; lines < end_lines; ++lines) {
+      for (const GeoPoint *src = &points[0]; lines < end_lines;
+           src += *lines, ++lines) {
         unsigned msize = *lines / iskip;
 
         /* copy all polygon points into the geo_points array and clip
@@ -306,9 +307,8 @@ TopographyFileRenderer::Paint(Canvas &canvas,
            only 16 bit integers on some platforms) */
 
         geo_points.GrowDiscard(msize * 3);
-
         for (unsigned i = 0; i < msize; ++i)
-          geo_points[i] = points[i * iskip];
+          geo_points[i] = src[i * iskip];
 
         msize = clip.ClipPolygon(geo_points.begin(),
                                  geo_points.begin(), msize);

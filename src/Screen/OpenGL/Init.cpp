@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -296,18 +296,17 @@ OpenGL::SetupContext()
 }
 
 void
-OpenGL::SetupViewport(unsigned width, unsigned height)
+OpenGL::SetupViewport(Point2D<unsigned> size)
 {
-  screen_width = width;
-  screen_height = height;
+  screen_size = size;
 
-  glViewport(0, 0, width, height);
+  glViewport(0, 0, size.x, size.y);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 #ifdef HAVE_GLES
-  glOrthox(0, width << 16, height << 16, 0, -(1<<16), 1<<16);
+  glOrthox(0, size.x << 16, size.y << 16, 0, -(1<<16), 1<<16);
 #else
-  glOrtho(0, width, height, 0, -1, 1);
+  glOrtho(0, size.x, size.y, 0, -1, 1);
 #endif
 
   glMatrixMode(GL_MODELVIEW);

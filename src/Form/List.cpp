@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2013 The XCSoar Project
+  Copyright (C) 2000-2014 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -150,7 +150,7 @@ ListControl::DrawItems(Canvas &canvas, unsigned start, unsigned end) const
 #ifdef ENABLE_OPENGL
   /* enable clipping */
   GLScissor scissor(OpenGL::translate.x,
-                    OpenGL::screen_height - OpenGL::translate.y - canvas.GetHeight(),
+                    OpenGL::screen_size.y - OpenGL::translate.y - canvas.GetHeight(),
                     scroll_bar.GetLeft(GetSize()), canvas.GetHeight());
 #endif
 
