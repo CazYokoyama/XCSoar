@@ -50,12 +50,16 @@ PyObject* xcsoar_Flight_new(PyTypeObject *type, PyObject *args, PyObject *kwargs
 
   Pyxcsoar_Flight *self;
   self = (Pyxcsoar_Flight *)type->tp_alloc(type, 0);
+  self->filename = nullptr;
 
   if (PyString_Check(py_input_data) || PyUnicode_Check(py_input_data)) {
-    Py_INCREF(py_input_data);
+    Py_ssize_t length = PyString_Size(py_input_data);
+    // add one char for \0
+    self->filename = new char[length + 1];
+    strncpy(self->filename, PyString_AsString(py_input_data), length + 1);
 
     Py_BEGIN_ALLOW_THREADS
-    self->flight = new Flight(PyString_AsString(py_input_data), keep);
+    self->flight = new Flight(self->filename, keep);
     Py_END_ALLOW_THREADS
   } else if (PySequence_Check(py_input_data) == 1) {
     Py_ssize_t num_items = PySequence_Fast_GET_SIZE(py_input_data);
@@ -86,6 +90,9 @@ PyObject* xcsoar_Flight_new(PyTypeObject *type, PyObject *args, PyObject *kwargs
 
 void xcsoar_Flight_dealloc(Pyxcsoar_Flight *self) {
   /* destructor */
+  if (self->filename != nullptr)
+    delete[] self->filename;
+
   delete self->flight;
   self->ob_type->tp_free((Pyxcsoar_Flight*)self);
 }
@@ -431,7 +438,7 @@ PyObject* xcsoar_Flight_encode(Pyxcsoar_Flight *self, PyObject *args) {
 
 PyObject* xcsoar_encode(PyObject *self, PyObject *args, PyObject *kwargs) {
   PyObject *py_list,
-           *py_method = PyString_FromString("unsigned");
+           *py_method = nullptr;
   double floor_to = 1;
   bool delta = true;
 
@@ -463,14 +470,14 @@ PyObject* xcsoar_encode(PyObject *self, PyObject *args, PyObject *kwargs) {
 
   enum Method { UNSIGNED, SIGNED, DOUBLE } method;
 
-  if (PyString_Check(py_method) && strcmp(PyString_AsString(py_method), "unsigned") == 0)
+  if (py_method == nullptr)
+    method = UNSIGNED;
+  else if (PyString_Check(py_method) && strcmp(PyString_AsString(py_method), "unsigned") == 0)
     method = UNSIGNED;
   else if (PyString_Check(py_method) && strcmp(PyString_AsString(py_method), "signed") == 0)
     method = SIGNED;
   else if (PyString_Check(py_method) && strcmp(PyString_AsString(py_method), "double") == 0)
     method = DOUBLE;
-  else if (!PyString_Check(py_method))
-    method = UNSIGNED;
   else {
     PyErr_SetString(PyExc_TypeError, "Can't parse method.");
     return NULL;
@@ -529,8 +536,6 @@ PyObject* xcsoar_encode(PyObject *self, PyObject *args, PyObject *kwargs) {
 
     }
   }
-
-  Py_DECREF(py_list);
 
   // prepare output
   PyObject *py_result = PyString_FromString(encoded.asString()->c_str());

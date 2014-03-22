@@ -28,7 +28,13 @@ Copyright_License {
 #ifdef ENABLE_OPENGL
 #include "Screen/OpenGL/Texture.hpp"
 #include "Screen/OpenGL/Scope.hpp"
+
+#ifdef HAVE_GLES2
+#include "Screen/OpenGL/Shaders.hpp"
+#include "Screen/OpenGL/Program.hpp"
+#else
 #include "Screen/OpenGL/Compatibility.hpp"
+#endif
 #endif
 
 void
@@ -82,7 +88,11 @@ MaskedIcon::Draw(Canvas &canvas, PixelScalar x, PixelScalar y) const
     /* hack: do the postponed layout calcuation now */
     const_cast<MaskedIcon *>(this)->CalculateLayout((bool)size.cy);
 
+#ifdef HAVE_GLES2
+  OpenGL::texture_shader->Use();
+#else
   OpenGL::glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+#endif
 
   const GLEnable scope(GL_TEXTURE_2D);
   const GLBlend blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

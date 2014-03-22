@@ -26,6 +26,7 @@ Copyright_License {
 
 #include "OS/FileDescriptor.hpp"
 #include "IO/Async/FileEventHandler.hpp"
+#include "Math/Point2D.hpp"
 
 class IOLoop;
 class EventQueue;
@@ -36,19 +37,15 @@ struct Event;
  * A driver for Linux input devices (/dev/input/event*).
  */
 class LinuxInputDevice final : private FileEventHandler {
-  struct Position {
-    unsigned x, y;
-
-    static constexpr Position Zero() {
-      return { 0, 0 };
-    }
-  };
+  typedef Point2D<int> Position;
 
   IOLoop &io_loop;
 
   EventQueue &queue;
 
   MergeMouse &merge;
+
+  int min_x, max_x, min_y, max_y;
 
   /**
    * The position being edited.  Upon EV_SYN, it will be copied to
@@ -61,7 +58,7 @@ class LinuxInputDevice final : private FileEventHandler {
    */
   Position public_position;
 
-  int rel_x, rel_y;
+  int rel_x, rel_y, rel_wheel;
 
   bool down;
 
@@ -84,7 +81,7 @@ public:
   explicit LinuxInputDevice(IOLoop &_io_loop, EventQueue &_queue,
                             MergeMouse &_merge)
     :io_loop(_io_loop), queue(_queue), merge(_merge),
-     edit_position(Position::Zero()), public_position(Position::Zero()) {}
+     edit_position(0, 0), public_position(0, 0) {}
 
   ~LinuxInputDevice() {
     Close();

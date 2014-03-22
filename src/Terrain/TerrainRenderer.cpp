@@ -30,7 +30,14 @@ Copyright_License {
 #ifdef ENABLE_OPENGL
 #include "Screen/OpenGL/Texture.hpp"
 #include "Screen/OpenGL/Scope.hpp"
+#include "Screen/OpenGL/VertexPointer.hpp"
+
+#ifdef HAVE_GLES2
+#include "Screen/OpenGL/Globals.hpp"
+#include "Screen/OpenGL/Program.hpp"
+#else
 #include "Screen/OpenGL/Compatibility.hpp"
+#endif
 #endif
 
 #include <assert.h>
@@ -369,7 +376,7 @@ TerrainRenderer::Generate(const WindowProjection &map_projection,
   raster_renderer.GenerateImage(do_shading, height_scale,
                                 settings.contrast, settings.brightness,
                                 sunazimuth,
-				do_contour);
+                                do_contour);
 }
 
 /**
@@ -393,7 +400,7 @@ TerrainRenderer::Draw(Canvas &canvas,
     map_projection.GeoToScreen(bounds.GetSouthEast()),
   };
 
-  glVertexPointer(2, GL_VALUE, 0, vertices);
+  const ScopeVertexPointer vp(vertices);
 
   const GLTexture &texture = raster_renderer.BindAndGetTexture();
   const PixelSize allocated = texture.GetAllocatedSize();
@@ -413,13 +420,31 @@ TerrainRenderer::Draw(Canvas &canvas,
     x1, y1,
   };
 
+#ifndef HAVE_GLES2
   OpenGL::glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+#endif
 
   GLEnable scope(GL_TEXTURE_2D);
+
+#ifdef HAVE_GLES2
+  OpenGL::texture_shader->Use();
+  glEnableVertexAttribArray(OpenGL::Attribute::TEXCOORD);
+  glVertexAttribPointer(OpenGL::Attribute::TEXCOORD, 2, GL_FLOAT, GL_FALSE,
+                        0, coord);
+#else
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, 0, coord);
+#endif
+
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+#ifdef HAVE_GLES2
+  glDisableVertexAttribArray(OpenGL::Attribute::TEXCOORD);
+  OpenGL::solid_shader->Use();
+#else
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#endif
+
 #else
   CopyTo(canvas, map_projection.GetScreenWidth(),
          map_projection.GetScreenHeight());

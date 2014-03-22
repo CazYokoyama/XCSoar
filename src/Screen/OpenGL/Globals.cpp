@@ -43,9 +43,17 @@ namespace OpenGL {
 
   GLenum render_buffer_depth_stencil, render_buffer_stencil;
 
-  Point2D<unsigned> screen_size;
+  Point2D<unsigned> window_size, viewport_size;
+
+#ifdef SOFTWARE_ROTATE_DISPLAY
+  DisplayOrientation display_orientation;
+#endif
 
   RasterPoint translate;
+
+#ifdef HAVE_GLES2
+  glm::mat4 projection_matrix;
+#endif
 
 #ifndef NDEBUG
   pthread_t thread;

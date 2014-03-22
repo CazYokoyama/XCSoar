@@ -49,6 +49,13 @@ Copyright_License {
 #define DRAW_MOUSE_CURSOR
 #endif
 
+#ifdef USE_EGL
+/**
+ * Support display rotation via glRotatef()?
+ */
+#define SOFTWARE_ROTATE_DISPLAY
+#endif
+
 /**
  * Running on OpenGL/ES?
  */
@@ -57,6 +64,20 @@ static inline bool
 HaveGLES()
 {
 #ifdef HAVE_GLES
+  return true;
+#else
+  return false;
+#endif
+}
+
+/**
+ * Running on OpenGL/ES 2.0?
+ */
+constexpr
+static inline bool
+HaveGLES2()
+{
+#ifdef HAVE_GLES2
   return true;
 #else
   return false;

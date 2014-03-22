@@ -37,6 +37,10 @@ Copyright_License {
 #include "Util/AllocatedArray.hpp"
 #include "Compiler.h"
 
+#ifdef HAVE_GLES2
+#include <glm/glm.hpp>
+#endif
+
 #include <assert.h>
 #include <tchar.h>
 
@@ -55,6 +59,10 @@ protected:
   RasterPoint offset;
   PixelSize size;
 
+#ifdef HAVE_GLES2
+  glm::mat4 projection_matrix;
+#endif
+
   Pen pen;
   Brush brush;
   const Font *font;
@@ -71,10 +79,11 @@ protected:
 public:
   Canvas()
     :offset(0, 0), size(0, 0),
-     font(NULL), background_mode(OPAQUE) {}
+     font(nullptr), background_mode(OPAQUE) {}
+
   Canvas(PixelSize _size)
     :offset(0, 0), size(_size),
-     font(NULL), background_mode(OPAQUE) {}
+     font(nullptr), background_mode(OPAQUE) {}
 
   Canvas(const Canvas &other) = delete;
   Canvas &operator=(const Canvas &other) = delete;
@@ -217,7 +226,7 @@ public:
   void DrawOutlineRectangle(int left, int top, int right, int bottom,
                             Color color) {
     color.Set();
-#ifdef HAVE_GLES
+#if defined(HAVE_GLES) && !defined(HAVE_GLES2)
     glLineWidthx(1 << 16);
 #else
     glLineWidth(1);
@@ -331,7 +340,7 @@ public:
 
   gcc_pure
   unsigned GetFontHeight() const {
-    return font != NULL ? font->GetHeight() : 0;
+    return font != nullptr ? font->GetHeight() : 0;
   }
 
   void DrawText(int x, int y, const TCHAR *text);
@@ -419,18 +428,6 @@ public:
                    int src_x, int src_y,
                    unsigned src_width, unsigned src_height,
                    Color fg_color, Color bg_color);
-
-  void CopyNotOr(int dest_x, int dest_y,
-                 unsigned dest_width, unsigned dest_height,
-                 const Bitmap &src, int src_x, int src_y);
-
-  void CopyAnd(int dest_x, int dest_y,
-               unsigned dest_width, unsigned dest_height,
-               const Bitmap &src, int src_x, int src_y);
-
-  void CopyAnd(const Bitmap &src) {
-    CopyAnd(0, 0, GetWidth(), GetHeight(), src, 0, 0);
-  }
 
   void ScaleCopy(int dest_x, int dest_y,
                  const Bitmap &src,

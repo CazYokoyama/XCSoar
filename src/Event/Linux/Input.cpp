@@ -101,11 +101,31 @@ LinuxInputDevice::Open(const char *path)
   fd.SetNonBlocking();
   io_loop.Add(fd.Get(), io_loop.READ, *this);
 
+  min_x = max_x = min_y = max_y = 0;
+
   is_pointer = IsPointerDevice(fd.Get());
-  if (is_pointer)
+  if (is_pointer) {
     merge.AddPointer();
 
-  rel_x = rel_y = 0;
+    if (!IsKobo()) {
+      /* obtain touch screen information */
+      /* no need to do that on the Kobo, because we know its touch
+         screen is well-calibrated */
+
+      input_absinfo abs;
+      if (ioctl(fd.Get(), EVIOCGABS(ABS_X), &abs) == 0) {
+        min_x = abs.minimum;
+        max_x = abs.maximum;
+      }
+
+      if (ioctl(fd.Get(), EVIOCGABS(ABS_Y), &abs) == 0) {
+        min_y = abs.minimum;
+        max_y = abs.maximum;
+      }
+    }
+  }
+
+  rel_x = rel_y = rel_wheel = 0;
   down = false;
   moving = pressing = releasing = false;
   return true;
@@ -124,7 +144,7 @@ LinuxInputDevice::Close()
   fd.Close();
 }
 
-void
+inline void
 LinuxInputDevice::Read()
 {
   struct input_event buffer[64];
@@ -167,10 +187,16 @@ LinuxInputDevice::Read()
         if (moving) {
           moving = false;
           public_position = edit_position;
-          merge.MoveAbsolute(public_position.x, public_position.y);
+          merge.MoveAbsolute(public_position.x, public_position.y,
+                             min_x, max_x, min_y, max_y);
         } else if (rel_x != 0 || rel_y != 0) {
           merge.MoveRelative(rel_x, rel_y);
           rel_x = rel_y = 0;
+        }
+
+        if (rel_wheel != 0) {
+          merge.MoveWheel(rel_wheel);
+          rel_wheel = 0;
         }
       }
 
@@ -213,8 +239,12 @@ LinuxInputDevice::Read()
         rel_x += e.value;
         break;
 
-      case ABS_Y:
+      case REL_Y:
         rel_y += e.value;
+        break;
+
+      case REL_WHEEL:
+        rel_wheel += e.value;
         break;
       }
 

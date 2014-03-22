@@ -54,12 +54,26 @@ TopWindow::Create(const TCHAR *text, PixelSize size,
     return;
   }
 
-  ContainerWindow::Create(NULL, screen->GetRect(), style);
+  ContainerWindow::Create(nullptr, screen->GetRect(), style);
 
 #if defined(ENABLE_SDL) && (SDL_MAJOR_VERSION < 2)
   SetCaption(text);
 #endif
 }
+
+#ifdef SOFTWARE_ROTATE_DISPLAY
+
+void
+TopWindow::SetDisplayOrientation(DisplayOrientation orientation)
+{
+  assert(screen != nullptr);
+  assert(screen->IsDefined());
+
+  screen->SetDisplayOrientation(orientation);
+  Resize(screen->GetWidth(), screen->GetHeight());
+}
+
+#endif
 
 void
 TopWindow::CancelMode()

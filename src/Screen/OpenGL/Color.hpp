@@ -28,6 +28,10 @@ Copyright_License {
 #include "Features.hpp"
 #include "System.hpp"
 
+#ifdef HAVE_GLES2
+#include "Shaders.hpp"
+#endif
+
 #include <stdint.h>
 
 /**
@@ -61,6 +65,10 @@ class Color {
 
   static constexpr Component MAX = 0xff;
 #endif
+
+  static constexpr GLfloat ExportFloat(Component value) {
+    return GLfloat(value) / GLfloat(MAX);
+  }
 
   Component r, g, b, a;
 
@@ -175,11 +183,25 @@ public:
                  Alpha());
   }
 
+#ifdef HAVE_GLES2
+  void Uniform(GLint location) const {
+    glUniform4f(location, ExportFloat(r), ExportFloat(g),
+                ExportFloat(b), ExportFloat(a));
+  }
+
+  void VertexAttrib(GLint index) const {
+    glVertexAttrib4f(index, ExportFloat(r), ExportFloat(g),
+                     ExportFloat(b), ExportFloat(a));
+  }
+#endif
+
   /**
    * Configures this color in the OpenGL context.
    */
   void Set() const {
-#ifdef HAVE_GLES
+#ifdef HAVE_GLES2
+    Uniform(OpenGL::solid_color);
+#elif defined(HAVE_GLES)
     /* on Android, glColor4ub() is not implemented, and we're forced
        to use floating point math for something as trivial as
        configuring a RGB color value */

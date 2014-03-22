@@ -29,6 +29,13 @@ Copyright_License {
 #include "Screen/Layout.hpp"
 #include "System.hpp"
 
+#ifdef HAVE_GLES2
+#include "Shaders.hpp"
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#endif
+
 /**
  * Temporarily changes the transformation matrix. Meant as replacement
  * for PolygonRotateShift().
@@ -40,6 +47,14 @@ class CanvasRotateShift
 public:
   CanvasRotateShift(const RasterPoint pos, Angle angle,
                     const int scale = 100) {
+#ifdef HAVE_GLES2
+    glm::mat4 matrix = glm::translate(glm::rotate(glm::mat4(),
+                                                  GLfloat(angle.Degrees()),
+                                                  glm::vec3(0, 0, 1)),
+                                      glm::vec3(pos.x, pos.y, 0));
+    glUniformMatrix4fv(OpenGL::solid_modelview, 1, GL_FALSE,
+                       glm::value_ptr(matrix));
+#else
     glPushMatrix();
 
 #ifdef HAVE_GLES
@@ -66,10 +81,16 @@ public:
       gl_scale *= Layout::scale_1024 / 1024.f;
     glScalef(gl_scale, gl_scale, 1.);
 #endif
+#endif /* HAVE_GLES2 */
   };
 
   ~CanvasRotateShift() {
+#ifdef HAVE_GLES2
+    glUniformMatrix4fv(OpenGL::solid_modelview, 1, GL_FALSE,
+                       glm::value_ptr(glm::mat4()));
+#else
     glPopMatrix();
+#endif
   }
 };
 

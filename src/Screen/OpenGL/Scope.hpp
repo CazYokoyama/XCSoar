@@ -43,17 +43,6 @@ public:
   }
 };
 
-class GLLogicOp : public GLEnable {
-public:
-  GLLogicOp(GLenum opcode):GLEnable(GL_COLOR_LOGIC_OP) {
-    ::glLogicOp(opcode);
-  }
-
-  void set(GLenum opcode) {
-    ::glLogicOp(opcode);
-  }
-};
-
 class GLBlend : public GLEnable {
 public:
   GLBlend(GLenum sfactor, GLenum dfactor):GLEnable(GL_BLEND) {

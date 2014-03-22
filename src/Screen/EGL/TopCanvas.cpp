@@ -30,6 +30,28 @@ Copyright_License {
 #include <stdio.h>
 #include <stdlib.h>
 
+/**
+ * Returns the EGL API to bind to using eglBindAPI().
+ */
+static constexpr EGLenum
+GetBindAPI()
+{
+  return HaveGLES()
+    ? EGL_OPENGL_ES_API
+    : EGL_OPENGL_API;
+}
+
+/**
+ * Returns the requested renderable type for EGL_RENDERABLE_TYPE.
+ */
+static constexpr EGLint
+GetRenderableType()
+{
+  return HaveGLES()
+    ? (HaveGLES2() ? EGL_OPENGL_ES2_BIT : EGL_OPENGL_ES_BIT)
+    : EGL_OPENGL_BIT;
+}
+
 void
 TopCanvas::Create(PixelSize new_size,
                   bool full_screen, bool resizable)
@@ -109,12 +131,12 @@ TopCanvas::Create(PixelSize new_size,
     exit(EXIT_FAILURE);
   }
 
-  if (!eglInitialize(display, NULL, NULL)) {
+  if (!eglInitialize(display, nullptr, nullptr)) {
     fprintf(stderr, "eglInitialize() failed\n");
     exit(EXIT_FAILURE);
   }
 
-  if (!eglBindAPI(HaveGLES() ? EGL_OPENGL_ES_API : EGL_OPENGL_API)) {
+  if (!eglBindAPI(GetBindAPI())) {
     fprintf(stderr, "eglBindAPI() failed\n");
     exit(EXIT_FAILURE);
   }
@@ -122,7 +144,7 @@ TopCanvas::Create(PixelSize new_size,
   static constexpr EGLint attributes[] = {
     EGL_STENCIL_SIZE, 1,
     EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-    EGL_RENDERABLE_TYPE, HaveGLES() ? EGL_OPENGL_ES_BIT : EGL_OPENGL_BIT,
+    EGL_RENDERABLE_TYPE, GetRenderableType(),
     EGL_NONE
   };
 
@@ -150,8 +172,17 @@ TopCanvas::Create(PixelSize new_size,
 
   const PixelSize effective_size = { egl_width, egl_height };
 
+#ifdef HAVE_GLES2
+  static constexpr EGLint context_attributes[] = {
+    EGL_CONTEXT_CLIENT_VERSION, 2,
+    EGL_NONE
+  };
+#else
+  const EGLint *context_attributes = nullptr;
+#endif
+
   context = eglCreateContext(display, chosen_config,
-                             EGL_NO_CONTEXT, nullptr);
+                             EGL_NO_CONTEXT, context_attributes);
 
   eglMakeCurrent(display, surface, surface, context);
 
@@ -182,6 +213,19 @@ TopCanvas::OnResize(PixelSize new_size)
 
   OpenGL::SetupViewport(Point2D<unsigned>(new_size.cx, new_size.cy));
   Canvas::Create(new_size);
+}
+
+void
+TopCanvas::SetDisplayOrientation(DisplayOrientation orientation)
+{
+  GLint egl_width, egl_height;
+  if (!eglQuerySurface(display, surface, EGL_WIDTH, &egl_width) ||
+      !eglQuerySurface(display, surface, EGL_HEIGHT, &egl_height))
+    return;
+
+  Point2D<unsigned> new_size(egl_width, egl_height);
+  OpenGL::SetupViewport(new_size, orientation);
+  Canvas::Create(PixelSize(new_size.x, new_size.y));
 }
 
 void

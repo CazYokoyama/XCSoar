@@ -60,6 +60,7 @@ ifeq ($(OPENGL),y)
 SCREEN_SOURCES += \
 	$(SCREEN_SRC_DIR)/Custom/Cache.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/Init.cpp \
+	$(SCREEN_SRC_DIR)/OpenGL/Rotate.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/Globals.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/Extension.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/FBO.cpp \
@@ -69,12 +70,18 @@ SCREEN_SOURCES += \
 	$(SCREEN_SRC_DIR)/OpenGL/Canvas.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/BufferCanvas.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/TopCanvas.cpp \
+	$(SCREEN_SRC_DIR)/OpenGL/SubCanvas.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/Texture.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/UncompressedImage.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/Buffer.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/Shapes.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/Surface.cpp \
 	$(SCREEN_SRC_DIR)/OpenGL/Triangulate.cpp
+
+ifeq ($(GLES2),y)
+SCREEN_SOURCES += \
+	$(SCREEN_SRC_DIR)/OpenGL/Shaders.cpp
+endif
 endif
 
 ifeq ($(ENABLE_SDL),y)
@@ -180,6 +187,7 @@ SCREEN_SOURCES += \
 	$(SCREEN_SRC_DIR)/Memory/Bitmap.cpp \
 	$(SCREEN_SRC_DIR)/Memory/RawBitmap.cpp \
 	$(SCREEN_SRC_DIR)/Memory/VirtualCanvas.cpp \
+	$(SCREEN_SRC_DIR)/Memory/SubCanvas.cpp \
 	$(SCREEN_SRC_DIR)/Memory/Canvas.cpp
 MEMORY_CANVAS_CPPFLAGS = -DUSE_MEMORY_CANVAS
 endif

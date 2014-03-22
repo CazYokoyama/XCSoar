@@ -35,8 +35,17 @@ Copyright_License {
 #include "Screen/OpenGL/Features.hpp"
 #include "Math/Point2D.hpp"
 
+#ifdef HAVE_GLES2
+#include <glm/glm.hpp>
+#endif
+
 #ifndef NDEBUG
 #include <pthread.h>
+#endif
+
+#ifdef SOFTWARE_ROTATE_DISPLAY
+#include <stdint.h>
+enum class DisplayOrientation : uint8_t;
 #endif
 
 namespace OpenGL {
@@ -58,9 +67,6 @@ namespace OpenGL {
 #ifdef HAVE_OES_DRAW_TEXTURE
   /**
    * Shall we use the OES_draw_texture extension?
-   *
-   * This will be disabled on Vivante GPUs, because they are known to
-   * be buggy.
    */
   extern bool oes_draw_texture;
 #endif
@@ -99,14 +105,27 @@ namespace OpenGL {
   extern GLenum render_buffer_stencil;
 
   /**
-   * The dimensions of the screen in pixels.
+   * The dimensions of the OpenGL window in pixels.
    */
-  extern Point2D<unsigned> screen_size;
+  extern Point2D<unsigned> window_size;
+
+  /**
+   * The dimensions of the OpenGL viewport in pixels.
+   */
+  extern Point2D<unsigned> viewport_size;
+
+#ifdef SOFTWARE_ROTATE_DISPLAY
+  extern DisplayOrientation display_orientation;
+#endif
 
   /**
    * The current SubCanvas translation in pixels.
    */
   extern RasterPoint translate;
+
+#ifdef HAVE_GLES2
+  extern glm::mat4 projection_matrix;
+#endif
 };
 
 #endif

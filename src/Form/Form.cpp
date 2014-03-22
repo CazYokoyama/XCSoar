@@ -38,6 +38,7 @@ Copyright_License {
 
 #ifdef ENABLE_OPENGL
 #include "Screen/OpenGL/Scope.hpp"
+#include "Screen/OpenGL/VertexPointer.hpp"
 #endif
 
 #ifdef ANDROID
@@ -524,6 +525,9 @@ WndForm::OnPaint(Canvas &canvas)
 #ifdef ENABLE_OPENGL
   if (!IsDithered() && !IsMaximised() && is_active) {
     /* draw a shade around the current dialog to emphasise it */
+#ifdef HAVE_GLES2
+    // TODO: implement
+#else
     const GLBlend blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnableClientState(GL_COLOR_ARRAY);
 
@@ -541,7 +545,7 @@ WndForm::OnPaint(Canvas &canvas)
       { rc.left - size, rc.bottom + size },
     };
 
-    glVertexPointer(2, GL_VALUE, 0, vertices);
+    const ScopeVertexPointer vp(vertices);
 
     static constexpr Color inner_color = COLOR_BLACK.WithAlpha(192);
     static constexpr Color outer_color = COLOR_BLACK.WithAlpha(16);
@@ -573,6 +577,7 @@ WndForm::OnPaint(Canvas &canvas)
                    GL_UNSIGNED_BYTE, indices);
 
     glDisableClientState(GL_COLOR_ARRAY);
+#endif
   }
 #endif
 

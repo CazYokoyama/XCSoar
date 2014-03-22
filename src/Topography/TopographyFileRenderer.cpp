@@ -38,6 +38,12 @@ Copyright_License {
 
 #ifdef ENABLE_OPENGL
 #include "Screen/OpenGL/Scope.hpp"
+#include "Screen/OpenGL/VertexPointer.hpp"
+#endif
+
+#ifdef HAVE_GLES2
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #endif
 
 #include <algorithm>
@@ -82,11 +88,11 @@ TopographyFileRenderer::UpdateVisibleShapes(const WindowProjection &projection)
 
 #ifdef ENABLE_OPENGL
 
-void
+inline void
 TopographyFileRenderer::PaintPoint(Canvas &canvas,
                                    const WindowProjection &projection,
                                    const XShape &shape,
-                                   float *opengl_matrix) const
+                                   const float *opengl_matrix) const
 {
   if (!icon.IsDefined())
     return;
@@ -109,7 +115,7 @@ TopographyFileRenderer::PaintPoint(Canvas &canvas,
 
 #else
 
-void
+inline void
 TopographyFileRenderer::PaintPoint(Canvas &canvas,
                                    const WindowProjection &projection,
                                    const unsigned short *lines,
@@ -166,15 +172,26 @@ TopographyFileRenderer::Paint(Canvas &canvas,
   const unsigned min_distance = file.GetMinimumPointDistance(level)
     / Layout::Scale(1);
 
-#ifndef HAVE_GLES
+#ifdef HAVE_GLES
+  const float *const opengl_matrix = nullptr;
+#else
   float opengl_matrix[16];
   glGetFloatv(GL_MODELVIEW_MATRIX, opengl_matrix);
 #endif
 
-  glPushMatrix();
   fixed angle = projection.GetScreenAngle().Degrees();
   fixed scale = projection.GetScale();
   const RasterPoint &screen_origin = projection.GetScreenOrigin();
+
+#ifdef HAVE_GLES2
+  glm::mat4 matrix = glm::translate(glm::rotate(glm::scale(glm::mat4(),
+                                                           glm::vec3(GLfloat(scale))),
+                                                GLfloat(angle),
+                                                glm::vec3(0, 0, 1)),
+                                    glm::vec3(screen_origin.x, screen_origin.y,
+                                              0));
+#else
+  glPushMatrix();
 #ifdef HAVE_GLES
 #ifdef FIXED_MATH
   GLfixed fixed_angle = angle.as_glfixed();
@@ -191,6 +208,7 @@ TopographyFileRenderer::Paint(Canvas &canvas,
   glRotatef((GLfloat)angle, 0., 0., -1.);
   glScalef((GLfloat)scale, (GLfloat)scale, 1.);
 #endif
+#endif /* !HAVE_GLES2 */
 #else // !ENABLE_OPENGL
   const GeoClip clip(projection.GetScreenBounds().Scale(fixed(1.1)));
   AllocatedArray<GeoPoint> geo_points;
@@ -210,11 +228,19 @@ TopographyFileRenderer::Paint(Canvas &canvas,
 
     const ShapePoint translation =
       shape.shape_translation(projection.GetGeoLocation());
+
+#ifdef HAVE_GLES2
+    auto matrix2 = glm::translate(matrix, glm::vec3(translation.x,
+                                                    translation.y, 0.));
+    glUniformMatrix4fv(OpenGL::solid_modelview, 1, GL_FALSE,
+                       glm::value_ptr(matrix2));
+#else
     glPushMatrix();
 #ifdef HAVE_GLES
     glTranslatex(translation.x, translation.y, 0);
 #else
     glTranslatef(translation.x, translation.y, 0.);
+#endif
 #endif
 #else // !ENABLE_OPENGL
     const unsigned short *lines = shape.get_lines();
@@ -228,11 +254,7 @@ TopographyFileRenderer::Paint(Canvas &canvas,
 
     case MS_SHAPE_POINT:
 #ifdef ENABLE_OPENGL
-#ifdef HAVE_GLES
-      PaintPoint(canvas, projection, shape, NULL);
-#else
       PaintPoint(canvas, projection, shape, opengl_matrix);
-#endif
 #else // !ENABLE_OPENGL
       PaintPoint(canvas, projection, lines, end_lines, points);
 #endif
@@ -242,9 +264,9 @@ TopographyFileRenderer::Paint(Canvas &canvas,
       {
 #ifdef ENABLE_OPENGL
 #ifdef HAVE_GLES
-        glVertexPointer(2, GL_FIXED, 0, &points[0].x);
+        const ScopeVertexPointer vp(GL_FIXED, points);
 #else
-        glVertexPointer(2, GL_INT, 0, &points[0].x);
+        const ScopeVertexPointer vp(GL_INT, points);
 #endif
 
         const GLushort *indices, *count;
@@ -285,9 +307,9 @@ TopographyFileRenderer::Paint(Canvas &canvas,
                                                         index_count);
 
 #ifdef HAVE_GLES
-        glVertexPointer(2, GL_FIXED, 0, &points[0].x);
+        const ScopeVertexPointer vp(GL_FIXED, points);
 #else
-        glVertexPointer(2, GL_INT, 0, &points[0].x);
+        const ScopeVertexPointer vp(GL_INT, points);
 #endif
         if (!brush.GetColor().IsOpaque()) {
           const GLBlend blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -328,11 +350,15 @@ TopographyFileRenderer::Paint(Canvas &canvas,
       break;
     }
 #ifdef ENABLE_OPENGL
+#ifndef HAVE_GLES2
     glPopMatrix();
+#endif
 #endif
   }
 #ifdef ENABLE_OPENGL
+#ifndef HAVE_GLES2
   glPopMatrix();
+#endif
   pen.Unbind();
 #else
   shape_renderer.Commit();

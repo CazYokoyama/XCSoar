@@ -29,6 +29,11 @@ Copyright_License {
 #include "Util/DebugFlag.hpp"
 #include "Screen/OpenGL/Surface.hpp"
 
+#ifdef SOFTWARE_ROTATE_DISPLAY
+#include <stdint.h>
+enum class DisplayOrientation : uint8_t;
+#endif
+
 class GLTexture;
 class GLFrameBuffer;
 class GLRenderBuffer;
@@ -43,14 +48,26 @@ class BufferCanvas : public Canvas, private GLSurfaceListener {
 
   GLRenderBuffer *stencil_buffer;
 
+#ifdef HAVE_GLES
+  GLint old_viewport[4];
+#endif
+
+#ifdef HAVE_GLES2
+  glm::mat4 old_projection_matrix;
+#endif
+
   RasterPoint old_translate;
   Point2D<unsigned> old_size;
+
+#ifdef SOFTWARE_ROTATE_DISPLAY
+  DisplayOrientation old_orientation;
+#endif
 
   DebugFlag active;
 
 public:
   BufferCanvas()
-    :texture(NULL), frame_buffer(NULL), stencil_buffer(NULL) {}
+    :texture(nullptr), frame_buffer(nullptr), stencil_buffer(nullptr) {}
   BufferCanvas(const Canvas &canvas,
                UPixelScalar _width, UPixelScalar _height);
   ~BufferCanvas() {
@@ -58,7 +75,7 @@ public:
   }
 
   bool IsDefined() const {
-    return texture != NULL;
+    return texture != nullptr;
   }
 
   void Create(PixelSize new_size);

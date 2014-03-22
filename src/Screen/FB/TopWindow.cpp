@@ -129,14 +129,14 @@ TopWindow::OnEvent(const Event &event)
 
   case Event::KEY_DOWN:
     w = GetFocusedWindow();
-    if (w == NULL)
+    if (w == nullptr)
       w = this;
 
     return w->OnKeyDown(event.param);
 
   case Event::KEY_UP:
     w = GetFocusedWindow();
-    if (w == NULL)
+    if (w == nullptr)
       w = this;
 
     return w->OnKeyUp(event.param);
@@ -159,6 +159,9 @@ TopWindow::OnEvent(const Event &event)
     double_click.Moved(event.point);
 
     return OnMouseUp(event.point.x, event.point.y);
+
+  case Event::MOUSE_WHEEL:
+    return OnMouseWheel(event.point.x, event.point.y, (int)event.param);
   }
 
   return false;

@@ -30,6 +30,11 @@ Copyright_License {
 #include "FBO.hpp"
 #include "Screen/Custom/Cache.hpp"
 #include "Asset.hpp"
+#include "DisplayOrientation.hpp"
+
+#ifdef HAVE_GLES2
+#include "Shaders.hpp"
+#endif
 
 #ifdef ANDROID
 #include "Android/Main.hpp"
@@ -40,6 +45,13 @@ Copyright_License {
 #include "EGL.hpp"
 #endif
 
+#ifdef HAVE_GLES2
+#include <glm/gtc/matrix_transform.hpp>
+#endif
+
+#include <algorithm>
+
+#include <assert.h>
 #include <string.h>
 
 void
@@ -74,7 +86,7 @@ SupportsNonPowerOfTwoTexturesGLES()
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 11, 11, 0,
-                 GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
+                 GL_RGB, GL_UNSIGNED_SHORT_5_6_5, nullptr);
     glDeleteTextures(1, &id);
 
     /* see if there is a complaint */
@@ -88,68 +100,9 @@ SupportsNonPowerOfTwoTexturesGLES()
 
 gcc_pure
 static bool
-IsVendor(const char *_vendor)
-{
-  const char *vendor = (const char *)glGetString(GL_VENDOR);
-  return vendor != nullptr && strcmp(vendor, _vendor) == 0;
-}
-
-gcc_pure
-static bool
-IsRenderer(const char *_renderer)
-{
-  const char *renderer = (const char *)glGetString(GL_RENDERER);
-  return renderer != nullptr && strcmp(renderer, _renderer) == 0;
-}
-
-gcc_pure
-static bool
-IsVivanteGC600()
-{
-  /* found on StreetMate GTA-50-3D */
-  return IsVendor("Vivante Corporation") &&
-    IsRenderer("GC600 Graphics Engine");
-}
-
-gcc_pure
-static bool
-IsVivanteGC800()
-{
-  /* note: this is a Vivante GPU, but its driver declares Marvell as
-     its vendor (found on Samsung GT-S5690) */
-  return IsVendor("Marvell Technology Group Ltd") &&
-    IsRenderer("GC800 Graphics Engine");
-}
-
-gcc_pure
-static bool
-IsVivanteGC1000()
-{
-  return IsVendor("Vivante Corporation") &&
-    IsRenderer("GC1000 Graphics Engine");
-}
-
-/**
- * Is this OpenGL driver blacklisted for OES_draw_texture?
- *
- * This is a workaround to disable OES_draw_texture on certain Vivante
- * GPUs because they are known to be buggy: when combined with
- * GL_COLOR_LOGIC_OP, the left quarter of the texture is not drawn
- */
-gcc_pure
-static bool
-IsBlacklistedOESDrawTexture()
-{
-  return IsAndroid() && (IsVivanteGC600() || IsVivanteGC800() ||
-                         IsVivanteGC1000());
-}
-
-gcc_pure
-static bool
 CheckOESDrawTexture()
 {
-  return OpenGL::IsExtensionSupported("GL_OES_draw_texture") &&
-    !IsBlacklistedOESDrawTexture();
+  return OpenGL::IsExtensionSupported("GL_OES_draw_texture");
 }
 
 #endif
@@ -167,7 +120,7 @@ EnableVBO()
      crashes instantly, see
      http://code.google.com/p/android/issues/detail?id=4273 */
   const char *version = (const char *)glGetString(GL_VERSION);
-  return version != NULL && strstr(version, "ES-CM 1.0") == NULL;
+  return version != nullptr && strstr(version, "ES-CM 1.0") == nullptr;
 }
 #endif
 
@@ -206,7 +159,11 @@ CheckDepthStencil()
     return GL_DEPTH24_STENCIL8_OES;
 
   /* not supported */
+#ifdef HAVE_GLES2
+  return GL_NONE;
+#else
   return GL_NONE_OES;
+#endif
 
 #else
 
@@ -233,11 +190,20 @@ CheckStencil()
   if (OpenGL::IsExtensionSupported("GL_OES_stencil4"))
     return GL_STENCIL_INDEX4_OES;
 
-  if (OpenGL::IsExtensionSupported("GL_OES_stencil8"))
+  if (OpenGL::IsExtensionSupported("GL_OES_stencil8")) {
+#ifdef HAVE_GLES2
+    return GL_STENCIL_INDEX8;
+#else
     return GL_STENCIL_INDEX8_OES;
+#endif
+  }
 
   /* not supported */
+#ifdef HAVE_GLES2
+  return GL_NONE;
+#else
   return GL_NONE_OES;
+#endif
 
 #else
 
@@ -288,19 +254,31 @@ OpenGL::SetupContext()
 
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_DITHER);
+#ifndef HAVE_GLES2
   glDisable(GL_LIGHTING);
 
   glEnableClientState(GL_VERTEX_ARRAY);
+#endif
 
   InitShapes();
+
+#ifdef HAVE_GLES2
+  InitShaders();
+#endif
 }
 
 void
 OpenGL::SetupViewport(Point2D<unsigned> size)
 {
-  screen_size = size;
+  window_size = size;
+  viewport_size = size;
 
   glViewport(0, 0, size.x, size.y);
+
+#ifdef HAVE_GLES2
+  projection_matrix = glm::ortho<float>(0, size.x, size.y, 0, -1, 1);
+  UpdateShaderProjectionMatrix();
+#else
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 #ifdef HAVE_GLES
@@ -311,11 +289,98 @@ OpenGL::SetupViewport(Point2D<unsigned> size)
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+#endif
+}
+
+/**
+ * Determine the projection rotation angle (in degrees) of the
+ * specified orientation.
+ */
+gcc_const
+static GLfloat
+OrientationToRotation(DisplayOrientation orientation)
+{
+  switch (orientation) {
+  case DisplayOrientation::DEFAULT:
+  case DisplayOrientation::LANDSCAPE:
+    return 0;
+
+  case DisplayOrientation::PORTRAIT:
+    return 90;
+
+  case DisplayOrientation::REVERSE_LANDSCAPE:
+    return 180;
+
+  case DisplayOrientation::REVERSE_PORTRAIT:
+    return 270;
+  }
+
+  assert(false);
+  gcc_unreachable();
+}
+
+/**
+ * Swap x and y if the given orientation specifies it.
+ */
+static void
+OrientationSwap(Point2D<unsigned> &p, DisplayOrientation orientation)
+{
+  switch (orientation) {
+  case DisplayOrientation::DEFAULT:
+  case DisplayOrientation::LANDSCAPE:
+  case DisplayOrientation::REVERSE_LANDSCAPE:
+    break;
+
+  case DisplayOrientation::PORTRAIT:
+  case DisplayOrientation::REVERSE_PORTRAIT:
+    std::swap(p.x, p.y);
+    break;
+  }
+}
+
+void
+OpenGL::SetupViewport(Point2D<unsigned> &size, DisplayOrientation orientation)
+{
+  window_size = size;
+
+  glViewport(0, 0, size.x, size.y);
+
+#ifdef HAVE_GLES2
+  projection_matrix = glm::rotate(glm::mat4(),
+                                  OrientationToRotation(orientation),
+                                  glm::vec3(0, 0, 1));
+  OrientationSwap(size, orientation);
+  projection_matrix = glm::ortho<float>(0, size.x, size.y, 0, -1, 1);
+  UpdateShaderProjectionMatrix();
+#else
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glRotatef(OrientationToRotation(orientation), 0, 0, 1);
+  OrientationSwap(size, orientation);
+#ifdef HAVE_GLES
+  glOrthox(0, size.x << 16, size.y << 16, 0, -(1<<16), 1<<16);
+#else
+  glOrtho(0, size.x, size.y, 0, -1, 1);
+#endif
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+#endif
+
+  viewport_size = size;
+
+#ifdef SOFTWARE_ROTATE_DISPLAY
+  OpenGL::display_orientation = orientation;
+#endif
 }
 
 void
 OpenGL::Deinitialise()
 {
+#ifdef HAVE_GLES2
+  DeinitShaders();
+#endif
+
   DeinitShapes();
 
   TextCache::Flush();
