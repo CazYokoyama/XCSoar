@@ -55,11 +55,13 @@ OpenVarioDevice::POV(NMEAInputLine &line, NMEAInfo &info)
   /*
 * Type definitions:
 *
+* E: TE vario in m/s
 * P: static pressure in hPa
 * Q: dynamic pressure in Pa
 * R: total pressure in hPa
 * S: true airspeed in km/h
 * T: temperature in deg C
+
 */
 
   while (!line.IsEmpty()) {
@@ -72,6 +74,11 @@ OpenVarioDevice::POV(NMEAInputLine &line, NMEAInfo &info)
       break;
 
     switch (type) {
+	  case 'E': {
+        info.ProvideTotalEnergyVario(fixed(value)/10);
+        break;
+      }
+	
       case 'P': {
         AtmosphericPressure pressure = AtmosphericPressure::HectoPascal(value);
         info.ProvideStaticPressure(pressure);
