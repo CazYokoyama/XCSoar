@@ -525,11 +525,7 @@ WndForm::OnPaint(Canvas &canvas)
 #ifdef ENABLE_OPENGL
   if (!IsDithered() && !IsMaximised() && is_active) {
     /* draw a shade around the current dialog to emphasise it */
-#ifdef HAVE_GLES2
-    // TODO: implement
-#else
     const GLBlend blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnableClientState(GL_COLOR_ARRAY);
 
     const PixelRect rc = GetClientRect();
     const PixelScalar size = Layout::SmallScale(4);
@@ -560,11 +556,7 @@ WndForm::OnPaint(Canvas &canvas)
       outer_color,
     };
 
-#ifdef HAVE_GLES
-    glColorPointer(4, GL_FIXED, 0, colors);
-#else
-    glColorPointer(4, GL_UNSIGNED_BYTE, 0, colors);
-#endif
+    const ScopeColorPointer cp(colors);
 
     static constexpr GLubyte indices[] = {
       0, 4, 1, 4, 5, 1,
@@ -575,9 +567,6 @@ WndForm::OnPaint(Canvas &canvas)
 
     glDrawElements(GL_TRIANGLES, ARRAY_SIZE(indices),
                    GL_UNSIGNED_BYTE, indices);
-
-    glDisableClientState(GL_COLOR_ARRAY);
-#endif
   }
 #endif
 

@@ -90,6 +90,12 @@ public:
 
   Color() = default;
 
+#ifdef HAVE_GLES
+  static constexpr GLenum TYPE = GL_FIXED;
+#else
+  static constexpr GLenum TYPE = GL_UNSIGNED_BYTE;
+#endif
+
   /**
    * Returns the red part of the color
    * @return The red part of the color (0-255)
@@ -200,7 +206,7 @@ public:
    */
   void Set() const {
 #ifdef HAVE_GLES2
-    Uniform(OpenGL::solid_color);
+    VertexAttrib(OpenGL::Attribute::COLOR);
 #elif defined(HAVE_GLES)
     /* on Android, glColor4ub() is not implemented, and we're forced
        to use floating point math for something as trivial as
@@ -235,6 +241,27 @@ public:
   bool operator !=(const Color other) const
   {
     return !(*this == other);
+  }
+};
+
+struct ScopeColorPointer {
+  ScopeColorPointer(const Color *p) {
+#ifdef HAVE_GLES2
+    glEnableVertexAttribArray(OpenGL::Attribute::COLOR);
+    glVertexAttribPointer(OpenGL::Attribute::COLOR, 4, Color::TYPE,
+                          GL_FALSE, 0, p);
+#else
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(4, Color::TYPE, 0, p);
+#endif
+  }
+
+  ~ScopeColorPointer() {
+#ifdef HAVE_GLES2
+    glDisableVertexAttribArray(OpenGL::Attribute::COLOR);
+#else
+    glDisableClientState(GL_COLOR_ARRAY);
+#endif
   }
 };
 

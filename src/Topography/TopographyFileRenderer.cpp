@@ -42,6 +42,9 @@ Copyright_License {
 #endif
 
 #ifdef HAVE_GLES2
+#include "Screen/OpenGL/Program.hpp"
+#include "Screen/OpenGL/Shaders.hpp"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #endif
@@ -157,6 +160,10 @@ TopographyFileRenderer::Paint(Canvas &canvas,
   // this will save time with rendering pixmaps especially
   // we already do an outer visibility test, but may need a test
   // in screen coords
+
+#ifdef HAVE_GLES2
+  OpenGL::solid_shader->Use();
+#endif
 
 #ifdef ENABLE_OPENGL
   pen.Bind();
@@ -356,7 +363,10 @@ TopographyFileRenderer::Paint(Canvas &canvas,
 #endif
   }
 #ifdef ENABLE_OPENGL
-#ifndef HAVE_GLES2
+#ifdef HAVE_GLES2
+  glUniformMatrix4fv(OpenGL::solid_modelview, 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4()));
+#else
   glPopMatrix();
 #endif
   pen.Unbind();

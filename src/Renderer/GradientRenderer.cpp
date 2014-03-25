@@ -52,20 +52,12 @@ DrawVerticalGradient(Canvas &canvas, const PixelRect &rc,
     bottom_color,
   };
 
-  glEnableClientState(GL_COLOR_ARRAY);
-
-#ifdef HAVE_GLES
-  glColorPointer(4, GL_FIXED, 0, colors);
-#else
-  glColorPointer(4, GL_UNSIGNED_BYTE, 0, colors);
-#endif
+  const ScopeColorPointer cp(colors);
 
   static_assert(ARRAY_SIZE(vertices) == ARRAY_SIZE(colors),
                 "Array size mismatch");
 
   glDrawArrays(GL_TRIANGLE_STRIP, 0, ARRAY_SIZE(vertices));
-
-  glDisableClientState(GL_COLOR_ARRAY);
 #else
   canvas.DrawFilledRectangle(rc, fallback_color);
 #endif
