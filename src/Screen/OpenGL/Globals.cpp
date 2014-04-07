@@ -23,6 +23,7 @@ Copyright_License {
 
 #include "Screen/OpenGL/Globals.hpp"
 #include "Screen/OpenGL/Debug.hpp"
+#include "Point.hpp"
 
 namespace OpenGL {
 #ifdef HAVE_DYNAMIC_EGL
@@ -37,6 +38,10 @@ namespace OpenGL {
 
 #ifdef ANDROID
   bool vertex_buffer_object;
+#endif
+
+#ifdef HAVE_OES_MAPBUFFER
+  bool mapbuffer;
 #endif
 
   bool frame_buffer_object;

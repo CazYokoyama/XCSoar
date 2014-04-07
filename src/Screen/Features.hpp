@@ -40,6 +40,10 @@ Copyright_License {
 #include "Screen/GDI/Features.hpp"
 #endif
 
+#ifdef ENABLE_SDL
+#include "Screen/SDL/Features.hpp"
+#endif
+
 /**
  * Return true when the Canvas implements clipping against its
  * siblings and children.

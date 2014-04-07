@@ -27,10 +27,16 @@ Copyright_License {
 #include "Screen/OpenGL/Extension.hpp"
 #include "Screen/OpenGL/Features.hpp"
 #include "Screen/OpenGL/Shapes.hpp"
+#include "Dynamic.hpp"
 #include "FBO.hpp"
 #include "Screen/Custom/Cache.hpp"
+#include "Math/Point2D.hpp"
 #include "Asset.hpp"
 #include "DisplayOrientation.hpp"
+
+#ifdef USE_EGL
+#include "Screen/EGL/System.hpp"
+#endif
 
 #ifdef HAVE_GLES2
 #include "Shaders.hpp"
@@ -53,6 +59,11 @@ Copyright_License {
 
 #include <assert.h>
 #include <string.h>
+#include <dlfcn.h>
+
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#endif
 
 void
 OpenGL::Initialise()
@@ -184,11 +195,13 @@ static GLenum
 CheckStencil()
 {
 #ifdef HAVE_GLES
+#if !defined(__APPLE__) || !TARGET_OS_IPHONE
   if (OpenGL::IsExtensionSupported("GL_OES_stencil1"))
     return GL_STENCIL_INDEX1_OES;
 
   if (OpenGL::IsExtensionSupported("GL_OES_stencil4"))
     return GL_STENCIL_INDEX4_OES;
+#endif
 
   if (OpenGL::IsExtensionSupported("GL_OES_stencil8")) {
 #ifdef HAVE_GLES2
@@ -240,6 +253,28 @@ OpenGL::SetupContext()
   native_view->SetTexturePowerOfTwo(texture_non_power_of_two);
 
   vertex_buffer_object = EnableVBO();
+#endif
+
+#ifdef HAVE_OES_MAPBUFFER
+  mapbuffer = IsExtensionSupported("GL_OES_mapbuffer");
+#endif
+
+#ifdef HAVE_DYNAMIC_MAPBUFFER
+  if (mapbuffer) {
+    GLExt::map_buffer = (PFNGLMAPBUFFEROESPROC)
+      eglGetProcAddress("glMapBufferOES");
+    GLExt::unmap_buffer = (PFNGLUNMAPBUFFEROESPROC)
+      eglGetProcAddress("glUnmapBufferOES");
+    if (GLExt::map_buffer == nullptr || GLExt::unmap_buffer == nullptr)
+      mapbuffer = false;
+  }
+#endif
+
+#ifdef HAVE_DYNAMIC_MULTI_DRAW_ARRAYS
+  GLExt::multi_draw_arrays = (PFNGLMULTIDRAWARRAYSEXTPROC)
+    dlsym(RTLD_DEFAULT, "glMultiDrawArraysEXT");
+  GLExt::multi_draw_elements = (PFNGLMULTIDRAWELEMENTSEXTPROC)
+    dlsym(RTLD_DEFAULT, "glMultiDrawElementsEXT");
 #endif
 
   frame_buffer_object = CheckFBO() && FBO::Initialise();

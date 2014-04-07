@@ -31,22 +31,20 @@ Copyright_License {
 #ifndef XCSOAR_SCREEN_OPENGL_GLOBALS_HPP
 #define XCSOAR_SCREEN_OPENGL_GLOBALS_HPP
 
-#include "Screen/OpenGL/Point.hpp"
 #include "Screen/OpenGL/Features.hpp"
-#include "Math/Point2D.hpp"
+#include "System.hpp"
 
 #ifdef HAVE_GLES2
 #include <glm/glm.hpp>
-#endif
-
-#ifndef NDEBUG
-#include <pthread.h>
 #endif
 
 #ifdef SOFTWARE_ROTATE_DISPLAY
 #include <stdint.h>
 enum class DisplayOrientation : uint8_t;
 #endif
+
+template<typename T> struct Point2D;
+struct RasterPoint;
 
 namespace OpenGL {
 #ifdef HAVE_DYNAMIC_EGL
@@ -84,6 +82,16 @@ namespace OpenGL {
   extern bool vertex_buffer_object;
 #else
   static constexpr bool vertex_buffer_object = true;
+#endif
+
+  /**
+   * Is glMapBuffer() available?  May be implemented by the extension
+   * GL_OES_mapbuffer.
+   */
+#ifdef HAVE_OES_MAPBUFFER
+  extern bool mapbuffer;
+#else
+  static constexpr bool mapbuffer = true;
 #endif
 
   /**

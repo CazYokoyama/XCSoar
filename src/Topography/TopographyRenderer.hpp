@@ -26,7 +26,6 @@ Copyright_License {
 
 #include "Topography/TopographyStore.hpp"
 #include "Util/StaticArray.hpp"
-#include "Util/NonCopyable.hpp"
 
 class Canvas;
 class WindowProjection;
@@ -41,7 +40,10 @@ class TopographyRenderer : private NonCopyable {
   StaticArray<TopographyFileRenderer *, TopographyStore::MAXTOPOGRAPHY> files;
 
 public:
-  TopographyRenderer(const TopographyStore &store);
+  explicit TopographyRenderer(const TopographyStore &store);
+
+  TopographyRenderer(const TopographyRenderer &) = delete;
+
   ~TopographyRenderer();
 
   const TopographyStore &GetStore() const {

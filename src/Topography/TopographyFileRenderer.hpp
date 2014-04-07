@@ -25,13 +25,12 @@ Copyright_License {
 #define TOPOGRAPHY_FILE_RENDERER_HPP
 
 #include "Screen/Pen.hpp"
-#include "Screen/Brush.hpp"
 #include "Screen/Icon.hpp"
-#include "Util/NonCopyable.hpp"
 #include "Util/Serial.hpp"
 #include "Geo/GeoBounds.hpp"
 
 #ifndef ENABLE_OPENGL
+#include "Screen/Brush.hpp"
 #include "Topography/ShapeRenderer.hpp"
 #endif
 
@@ -39,6 +38,7 @@ Copyright_License {
 
 class TopographyFile;
 class Canvas;
+class GLArrayBuffer;
 class WindowProjection;
 class LabelBlock;
 class XShape;
@@ -47,7 +47,7 @@ struct GeoPoint;
 /**
  * Class used to manage and render vector topography layers
  */
-class TopographyFileRenderer : private NonCopyable {
+class TopographyFileRenderer {
   const TopographyFile &file;
 
 #ifndef ENABLE_OPENGL
@@ -55,7 +55,10 @@ class TopographyFileRenderer : private NonCopyable {
 #endif
 
   Pen pen;
+
+#ifndef ENABLE_OPENGL
   Brush brush;
+#endif
 
   MaskedIcon icon;
 
@@ -64,8 +67,17 @@ class TopographyFileRenderer : private NonCopyable {
 
   std::vector<const XShape *> visible_shapes, visible_labels;
 
+#ifdef ENABLE_OPENGL
+  GLArrayBuffer *array_buffer;
+  Serial array_buffer_serial;
+#endif
+
 public:
-  TopographyFileRenderer(const TopographyFile &file);
+  explicit TopographyFileRenderer(const TopographyFile &file);
+
+  TopographyFileRenderer(const TopographyFileRenderer &) = delete;
+
+  ~TopographyFileRenderer();
 
   /**
    * Paints the polygons, lines and points/icons in the TopographyFile
@@ -89,6 +101,8 @@ private:
   void UpdateVisibleShapes(const WindowProjection &projection);
 
 #ifdef ENABLE_OPENGL
+  bool UpdateArrayBuffer();
+
   void PaintPoint(Canvas &canvas, const WindowProjection &projection,
                   const XShape &shape, const float *opengl_matrix) const;
 #else

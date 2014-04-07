@@ -21,18 +21,20 @@ Copyright_License {
 }
 */
 
-#include "Screen/Canvas.hpp"
-#include "Screen/Bitmap.hpp"
-#include "Screen/OpenGL/Globals.hpp"
-#include "Screen/OpenGL/Texture.hpp"
-#include "Screen/OpenGL/Scope.hpp"
-#include "Screen/Custom/Cache.hpp"
-#include "Screen/OpenGL/VertexArray.hpp"
-#include "Screen/OpenGL/Shapes.hpp"
-#include "Screen/OpenGL/Buffer.hpp"
-#include "Screen/OpenGL/Features.hpp"
+#include "Canvas.hpp"
+#include "Triangulate.hpp"
+#include "Globals.hpp"
+#include "Texture.hpp"
+#include "Scope.hpp"
+#include "VertexArray.hpp"
+#include "Shapes.hpp"
+#include "Buffer.hpp"
+#include "Features.hpp"
 #include "VertexPointer.hpp"
+#include "Screen/Custom/Cache.hpp"
+#include "Screen/Bitmap.hpp"
 #include "Screen/Util.hpp"
+#include "Util/AllocatedArray.hpp"
 #include "Util/Macros.hpp"
 
 #ifdef HAVE_GLES2
@@ -681,7 +683,10 @@ Canvas::DrawText(int x, int y, const TCHAR *text)
 
   PrepareColoredAlphaTexture(text_color);
 
+#ifndef HAVE_GLES2
   GLEnable scope(GL_TEXTURE_2D);
+#endif
+
   const GLBlend blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   texture->Bind();
@@ -707,7 +712,10 @@ Canvas::DrawTransparentText(int x, int y, const TCHAR *text)
 
   PrepareColoredAlphaTexture(text_color);
 
+#ifndef HAVE_GLES2
   GLEnable scope(GL_TEXTURE_2D);
+#endif
+
   const GLBlend blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   texture->Bind();
@@ -740,7 +748,10 @@ Canvas::DrawClippedText(int x, int y,
 
   PrepareColoredAlphaTexture(text_color);
 
+#ifndef HAVE_GLES2
   GLEnable scope(GL_TEXTURE_2D);
+#endif
+
   const GLBlend blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   texture->Bind();
@@ -795,11 +806,11 @@ Canvas::StretchNot(const Bitmap &src)
 {
   assert(src.IsDefined());
 
-  GLEnable scope(GL_TEXTURE_2D);
-
 #ifdef HAVE_GLES2
   OpenGL::invert_shader->Use();
 #else
+  const GLEnable scope(GL_TEXTURE_2D);
+
   OpenGL::glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 
   /* invert the texture color */
@@ -832,11 +843,11 @@ Canvas::Stretch(int dest_x, int dest_y,
 #ifdef HAVE_GLES2
   OpenGL::texture_shader->Use();
 #else
+  const GLEnable scope(GL_TEXTURE_2D);
   OpenGL::glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 #endif
 
   GLTexture &texture = *src.GetNative();
-  GLEnable scope(GL_TEXTURE_2D);
   texture.Bind();
   texture.Draw(dest_x, dest_y, dest_width, dest_height,
                src_x, src_y, src_width, src_height);
@@ -855,11 +866,11 @@ Canvas::Stretch(int dest_x, int dest_y,
 #ifdef HAVE_GLES2
   OpenGL::texture_shader->Use();
 #else
+  const GLEnable scope(GL_TEXTURE_2D);
   OpenGL::glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 #endif
 
   GLTexture &texture = *src.GetNative();
-  GLEnable scope(GL_TEXTURE_2D);
   texture.Bind();
   texture.Draw(dest_x, dest_y, dest_width, dest_height,
                0, 0, src.GetWidth(), src.GetHeight());
@@ -883,6 +894,8 @@ Canvas::StretchMono(int dest_x, int dest_y,
   OpenGL::alpha_shader->Use();
   fg_color.Set();
 #else
+  const GLEnable scope(GL_TEXTURE_2D);
+
   OpenGL::glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 
   /* replace the texture color with the selected text color */
@@ -897,7 +910,6 @@ Canvas::StretchMono(int dest_x, int dest_y,
   OpenGL::glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #endif
 
-  const GLEnable scope(GL_TEXTURE_2D);
   const GLBlend blend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   GLTexture &texture = *src.GetNative();
