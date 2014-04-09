@@ -2,6 +2,8 @@ ifeq ($(TARGET_IS_IOS),y)
 
 DEB_TMPDIR = $(TARGET_OUTPUT_DIR)/deb
 
+IOS_DEB_VERSION = $(shell echo $(VERSION) | sed -e 's/_/-/g')
+
 ifeq ($(TESTING),y)
 CYDIA_DEB_NAME = xcsoar-testing.deb
 IOS_LOGO_SVG = $(topdir)/Data/graphics/logo_red.svg
@@ -9,7 +11,6 @@ IOS_ICON_SVG = $(topdir)/Data/iOS/iOS-Icon_red.svg
 IOS_APP_DIR_NAME = XCSoar.testing.app
 IOS_APP_BUNDLE_INENTIFIER = org.xcsoar.testing
 IOS_APP_DISPLAY_NAME = XCSoar Testing
-IOS_DEB_VERSION = $(shell echo $(FULL_VERSION) | sed -e 's/_/-/g')
 else
 CYDIA_DEB_NAME = xcsoar.deb
 IOS_LOGO_SVG = $(topdir)/Data/graphics/logo.svg
@@ -17,7 +18,6 @@ IOS_ICON_SVG = $(topdir)/Data/iOS/iOS-Icon.svg
 IOS_APP_DIR_NAME = XCSoar.app
 IOS_APP_BUNDLE_INENTIFIER = org.xcsoar
 IOS_APP_DISPLAY_NAME = XCSoar
-IOS_DEB_VERSION = $(shell echo $(VERSION) | sed -e 's/_/-/g')
 endif
 
 $(TARGET_OUTPUT_DIR)/$(CYDIA_DEB_NAME): $(TARGET_BIN_DIR)/xcsoar
@@ -75,7 +75,7 @@ ifeq ($(HOST_IS_DARWIN),y)
 	    -o $(DEB_TMPDIR)/Applications/$(IOS_APP_DIR_NAME)/Info.plist \
 		$(TARGET_OUTPUT_DIR)/Info.plist.xml
 else
-	$(Q)plutil -i $(TARGET_OUTPUT_DIR)/Info.plist.xml \
+	$(Q)plistutil -i $(TARGET_OUTPUT_DIR)/Info.plist.xml \
 		-o $(DEB_TMPDIR)/Applications/$(IOS_APP_DIR_NAME)/Info.plist
 endif
 	$(Q)$(MKDIR) $(DEB_TMPDIR)/DEBIAN
@@ -84,7 +84,7 @@ endif
 		$(topdir)/Data/iOS/cydia-deb-control.in \
 		> $(DEB_TMPDIR)/DEBIAN/control
 	$(Q)cp $(TARGET_BIN_DIR)/xcsoar $(DEB_TMPDIR)/Applications/$(IOS_APP_DIR_NAME)/XCSoar
-	$(Q)dpkg-deb -b $(TARGET_OUTPUT_DIR)/deb $@ >$(NUL)
+	$(Q)dpkg-deb --deb-format=2.0 -Zbzip2 -b $(TARGET_OUTPUT_DIR)/deb $@ >$(NUL)
 	
 cydia-deb: $(TARGET_OUTPUT_DIR)/$(CYDIA_DEB_NAME)
 

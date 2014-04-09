@@ -42,7 +42,7 @@ Copyright_License {
 #include "Screen/OpenGL/Dynamic.hpp"
 #endif
 
-#ifdef HAVE_GLES2
+#ifdef USE_GLSL
 #include "Screen/OpenGL/Program.hpp"
 #include "Screen/OpenGL/Shaders.hpp"
 
@@ -127,6 +127,7 @@ TopographyFileRenderer::UpdateArrayBuffer()
 
   ShapePoint *p = (ShapePoint *)
     array_buffer->BeginWrite(n * sizeof(*p));
+  assert (p != nullptr);
 
   for (const auto &shape : file) {
     const auto *lines = shape.get_lines();
@@ -139,7 +140,7 @@ TopographyFileRenderer::UpdateArrayBuffer()
     }
   }
 
-  array_buffer->CommitWrite(n * sizeof(*p), p);
+  array_buffer->CommitWrite(n * sizeof(*p), p - n);
 
   return true;
 }
@@ -211,7 +212,7 @@ TopographyFileRenderer::Paint(Canvas &canvas,
   if (visible_shapes.empty())
     return;
 
-#ifdef HAVE_GLES2
+#ifdef USE_GLSL
   OpenGL::solid_shader->Use();
 #endif
 
@@ -256,7 +257,7 @@ TopographyFileRenderer::Paint(Canvas &canvas,
   const fixed scale_x = scale_r * screen_location.latitude.fastcosine();
   const fixed scale_y = -scale_r;
 
-#ifdef HAVE_GLES2
+#ifdef USE_GLSL
   const glm::vec3 scale_vec(GLfloat(scale_x), GLfloat(scale_y), 1);
 
   glm::mat4 matrix = glm::scale(glm::rotate(glm::translate(glm::mat4(),
@@ -291,7 +292,7 @@ TopographyFileRenderer::Paint(Canvas &canvas,
   glTranslatef(GLfloat(projection_delta.longitude.Native()),
                GLfloat(projection_delta.latitude.Native()),
                0.);
-#endif /* !HAVE_GLES2 */
+#endif /* !USE_GLSL */
 #else // !ENABLE_OPENGL
   const GeoClip clip(projection.GetScreenBounds().Scale(fixed(1.1)));
   AllocatedArray<GeoPoint> geo_points;
@@ -330,7 +331,7 @@ TopographyFileRenderer::Paint(Canvas &canvas,
 
     case MS_SHAPE_POINT:
 #ifdef ENABLE_OPENGL
-#ifdef HAVE_GLES2
+#ifdef USE_GLSL
       /* disable the ScopeVertexPointer instance because PaintPoint()
          uses that attribute */
       glDisableVertexAttribArray(OpenGL::Attribute::POSITION);
@@ -338,7 +339,7 @@ TopographyFileRenderer::Paint(Canvas &canvas,
 
       PaintPoint(canvas, projection, shape, opengl_matrix);
 
-#ifdef HAVE_GLES2
+#ifdef USE_GLSL
       /* reenable the ScopeVertexPointer instance because PaintPoint()
          left it disabled */
       glEnableVertexAttribArray(OpenGL::Attribute::POSITION);
@@ -462,7 +463,7 @@ TopographyFileRenderer::Paint(Canvas &canvas,
   }
 #endif
 
-#ifdef HAVE_GLES2
+#ifdef USE_GLSL
   glUniformMatrix4fv(OpenGL::solid_modelview, 1, GL_FALSE,
                      glm::value_ptr(glm::mat4()));
 #else
