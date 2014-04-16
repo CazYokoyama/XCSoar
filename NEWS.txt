@@ -22,17 +22,27 @@ Version 6.8 - not yet released
   - use /dev/input/event* on Raspberry Pi and Cubieboard (#3179)
   - support mouse wheel on Raspberry Pi and Cubieboard
   - scale touchscreen coordinates to screen size
+* Android
+  - fix IOIO connection on Android 4.x (#2959, #3260)
 * Kobo
   - add UI allowing the start of external scripts to KoboMenu (#3194)
   - support Wifi with WEP (#3138)
   - support USB-OTG
 
-Version 6.7.4 - not yet released
+Version 6.7.4 - 2014/04/11
 * map
   - fix topography rendering for polygon shapes (#3245)
   - fix SDL clipped polygon rendering algorithm (#3250)
 * devices
   - Westerboer: ignore implausible values from buggy devices
+* logger
+  - create "logs" directory automatically for external flight downloads
+* user interface
+  - show status message when switching to next turnpoint (#3270)
+* airspace
+  - relax parsing of TNP airspace files (#3272)
+* infoboxes
+  - don't use depreciated content in default configuration (#3278)
 
 Version 6.7.3 - 2014/01/22
 * tracking

@@ -29,7 +29,9 @@ Copyright_License {
 #include "Util/Serial.hpp"
 #include "Geo/GeoBounds.hpp"
 
-#ifndef ENABLE_OPENGL
+#ifdef ENABLE_OPENGL
+#include "Screen/OpenGL/Surface.hpp"
+#else
 #include "Screen/Brush.hpp"
 #include "Topography/ShapeRenderer.hpp"
 #endif
@@ -38,7 +40,7 @@ Copyright_License {
 
 class TopographyFile;
 class Canvas;
-class GLArrayBuffer;
+class GLFallbackArrayBuffer;
 class WindowProjection;
 class LabelBlock;
 class XShape;
@@ -47,7 +49,11 @@ struct GeoPoint;
 /**
  * Class used to manage and render vector topography layers
  */
-class TopographyFileRenderer {
+class TopographyFileRenderer final
+#ifdef ENABLE_OPENGL
+  : GLSurfaceListener
+#endif
+{
   const TopographyFile &file;
 
 #ifndef ENABLE_OPENGL
@@ -68,7 +74,7 @@ class TopographyFileRenderer {
   std::vector<const XShape *> visible_shapes, visible_labels;
 
 #ifdef ENABLE_OPENGL
-  GLArrayBuffer *array_buffer;
+  GLFallbackArrayBuffer *array_buffer;
   Serial array_buffer_serial;
 #endif
 
@@ -101,10 +107,13 @@ private:
   void UpdateVisibleShapes(const WindowProjection &projection);
 
 #ifdef ENABLE_OPENGL
-  bool UpdateArrayBuffer();
+  void UpdateArrayBuffer();
 
   void PaintPoint(Canvas &canvas, const WindowProjection &projection,
                   const XShape &shape, const float *opengl_matrix) const;
+
+  virtual void SurfaceCreated() override;
+  virtual void SurfaceDestroyed() override;
 #else
   void PaintPoint(Canvas &canvas, const WindowProjection &projection,
                   const unsigned short *lines, const unsigned short *end_lines,

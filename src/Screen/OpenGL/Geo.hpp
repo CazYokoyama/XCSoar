@@ -21,34 +21,27 @@ Copyright_License {
 }
 */
 
-#include "InputConfig.hpp"
-#include "Util/Macros.hpp"
+#ifndef XCSOAR_SCREEN_OPENGL_GEO_HPP
+#define XCSOAR_SCREEN_OPENGL_GEO_HPP
 
-#include <algorithm>
+#include "Compiler.h"
+
+struct GeoPoint;
+class WindowProjection;
+
+#ifdef USE_GLSL
+
+#include <glm/glm.hpp>
+
+gcc_pure
+glm::mat4
+ToGLM(const WindowProjection &projection, const GeoPoint &reference);
+
+#else
 
 void
-InputConfig::SetDefaults()
-{
-  modes.resize(4);
-  modes[0] = _T("default");
-  modes[1] = _T("pan");
-  modes[2] = _T("infobox");
-  modes[3] = _T("Menu");
+ApplyProjection(const WindowProjection &projection, const GeoPoint &reference);
 
-  std::fill_n(&Key2Event[0][0], MAX_MODE*MAX_KEY, 0);
-#if defined(ENABLE_SDL) && (SDL_MAJOR_VERSION >= 2)
-  std::fill_n(&Key2EventNonChar[0][0], MAX_MODE*MAX_KEY, 0);
 #endif
 
-  Gesture2Event.Clear();
-
-  std::fill_n(&GC2Event[0], ARRAY_SIZE(GC2Event), 0);
-  std::fill_n(&N2Event[0], ARRAY_SIZE(N2Event), 0);
-
-  /* This is initialized with 1 because event 0 is reserved - it
-     stands for "no event" */
-  events.resize(1);
-
-  for (auto i = menus, end = menus + MAX_MODE; i != end; ++i)
-    i->Clear();
-}
+#endif
