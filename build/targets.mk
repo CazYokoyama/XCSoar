@@ -357,7 +357,7 @@ endif
 ifeq ($(TARGET),ANDROID)
   ANDROID_NDK ?= $(HOME)/opt/android-ndk-r9d
 
-  ANDROID_PLATFORM = android-17
+  ANDROID_PLATFORM = android-19
   ANDROID_SDK_PLATFORM = $(ANDROID_PLATFORM)
 
   # NDK r8b has only android-14
@@ -392,6 +392,15 @@ ifeq ($(TARGET),ANDROID)
   ANDROID_TARGET_ROOT = $(ANDROID_NDK_PLATFORM_DIR)/arch-$(ANDROID_ARCH)
 
   ANDROID_GCC_TOOLCHAIN_NAME = $(ANDROID_ABI2)-$(ANDROID_GCC_VERSION)
+
+  ifeq ($(ANDROID_ABI3),armeabi)
+    # on ARMv6, LLVM/clang generates the "movw" instruction which
+    # however requires ARMv7 and leads to a SIGILL crash
+    # (http://llvm.org/bugs/show_bug.cgi?id=18364 and
+    # http://bugs.xcsoar.org/ticket/3339); until this LLVM bug is
+    # fixed, we keep using gcc
+    CLANG ?= n
+  endif
 
   # clang is the default compiler on Android
   CLANG ?= y
@@ -527,6 +536,7 @@ endif
 ifeq ($(HAVE_MSVCRT),y)
   TARGET_CPPFLAGS += -DHAVE_MSVCRT
   TARGET_CPPFLAGS += -DUNICODE -D_UNICODE
+  TARGET_CPPFLAGS += -DSTRICT
 endif
 
 ifeq ($(HAVE_WIN32),n)
