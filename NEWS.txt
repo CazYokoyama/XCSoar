@@ -6,6 +6,8 @@ Version 6.8 - not yet released
 * data files
   - optimise the topography loader
 * devices
+  - remove option "Ignore checksum"
+  - LX: implement LXNAV Nano3 task declaration (#3295)
   - Volkslogger: support DAeC keyhole declaration
 * calculations
   - use maximum speed configured in plane setup as limit for calculations
@@ -30,6 +32,11 @@ Version 6.8 - not yet released
   - add UI allowing the start of external scripts to KoboMenu (#3194)
   - support Wifi with WEP (#3138)
   - support USB-OTG
+  - export data partition via USB storage
+
+Version 6.7.6 - not yet released
+* devices
+  - LX: relax download timeout (#3199)
 
 Version 6.7.5 - 2014/06/09
 * fix crash in task manager (#3305)

@@ -21,29 +21,22 @@ Copyright_License {
 }
 */
 
-#include "Device/Internal.hpp"
+#ifndef XCSOAR_KOBO_KERNEL_HPP
+#define XCSOAR_KOBO_KERNEL_HPP
 
-#include "Port/Port.hpp"
-#include "NMEA/Checksum.hpp"
+#include "Compiler.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-
+/**
+ * Install the given kernel image on /dev/mmcblk0.
+ */
 bool
-PortWriteNMEA(Port &port, const char *line, OperationEnvironment &env)
-{
-  assert(line != NULL);
+KoboInstallKernel(const char *uimage_path);
 
-  /* reasonable hard-coded timeout; do we need to make this a
-     parameter? */
-  const unsigned timeout_ms = 1000;
+/**
+ * Does the kernel that is currently running have USB-OTG support?
+ */
+gcc_const
+bool
+IsKoboOTGKernel();
 
-  if (!port.Write('$') ||
-      !port.FullWrite(line, strlen(line), env, timeout_ms))
-    return false;
-
-  char checksum[16];
-  sprintf(checksum, "*%02X\r\n", NMEAChecksum(line));
-  return port.FullWrite(checksum, strlen(checksum), env, timeout_ms);
-}
+#endif
