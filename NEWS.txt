@@ -5,6 +5,8 @@ SUMMARY OF NEW FEATURES AND BUG FIXES SINCE V4.0
 Version 6.8 - not yet released
 * data files
   - optimise the topography loader
+  - faster RASP map change
+  - show all RASP maps
 * devices
   - remove option "Ignore checksum"
   - LX: implement LXNAV Nano3 task declaration (#3295)
@@ -22,21 +24,40 @@ Version 6.8 - not yet released
   - show name of loaded/saved tasks in dialog title (#1924)
 * user interface 
   - checklist remembers last opened list (#3110)
+  - use configured coordinate format in waypoint editor
   - display rotation for Raspberry Pi and Cubieboard (#3238)
   - use /dev/input/event* on Raspberry Pi and Cubieboard (#3179)
   - support mouse wheel on Raspberry Pi and Cubieboard
   - scale touchscreen coordinates to screen size
+  - new translation: Simplified Chinese
 * Android
   - fix IOIO connection on Android 4.x (#2959, #3260)
 * Kobo
   - add UI allowing the start of external scripts to KoboMenu (#3194)
   - support Wifi with WEP (#3138)
+  - support open Wifi networks (#3391)
   - support USB-OTG
   - export data partition via USB storage
 
-Version 6.7.6 - not yet released
+Version 6.7.7 - not yet released
+* airspace
+  - accept airspaces of class RMZ in OpenAir format files
+
+Version 6.7.6 - 2014/10/18
+* tracking
+  - updated SkyLines server IP
+* user interface
+  - fix crash when switching pages with cross section (#3012, #3231, #3395)
 * devices
   - LX: relax download timeout (#3199)
+  - OpenVario: new device driver
+  - Vaulter: new device driver
+* replay
+  - accept "$GNRMC" in replay of NMEA files
+* calculations
+  - improve circling detection when using some external NMEA devices (#3360, #3372)
+* configuration
+  - report missing plane configuration file in log file
 
 Version 6.7.5 - 2014/06/09
 * fix crash in task manager (#3305)
