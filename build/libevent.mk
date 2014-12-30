@@ -1,7 +1,7 @@
 USE_CONSOLE ?= $(call bool_or,$(EGL),$(USE_FB))
 
 # use Wayland's libinput for input device handling
-USE_LIBINPUT ?= n
+USE_LIBINPUT ?= y
 
 ifeq ($(USE_LIBINPUT),n)
 # query /dev/input/event* instead of stdin and /dev/input/mice or libinput?
@@ -72,6 +72,7 @@ endif
 
 ifeq ($(USE_LIBINPUT),y)
 $(eval $(call pkg-config-library,LIBINPUT,libinput))
+$(eval $(call pkg-config-library,UDEV,libudev))
 LIBINPUT_CPPFLAGS := $(patsubst -I%,-isystem %,$(LIBINPUT_CPPFLAGS))
 LIBINPUT_CPPFLAGS_INTERNAL += $(UDEV_CPPFLAGS)
 LIBINPUT_CPPFLAGS += -DUSE_LIBINPUT
