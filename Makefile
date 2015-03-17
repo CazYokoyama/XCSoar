@@ -19,6 +19,8 @@
 #
 #   ENABLE_SDL  If set to "y", the UI is drawn with libSDL.
 #
+#   ENABLE_ALSA  If set to "y", the audio output is rendered through an ALSA based PCM-player.
+#
 #   OPENGL      "y" means render with OpenGL.
 #
 #   GLES        "y" means render with OpenGL/ES.
@@ -145,6 +147,7 @@ include $(topdir)/build/screen.mk
 include $(topdir)/build/libthread.mk
 include $(topdir)/build/form.mk
 include $(topdir)/build/libwidget.mk
+include $(topdir)/build/alsa.mk
 include $(topdir)/build/libaudio.mk
 include $(topdir)/build/libterrain.mk
 include $(topdir)/build/harness.mk

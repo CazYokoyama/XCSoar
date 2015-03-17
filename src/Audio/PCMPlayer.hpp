@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -31,6 +31,8 @@ Copyright_License {
 #include "SLES/AndroidSimpleBufferQueue.hpp"
 
 #include <stdint.h>
+#elif defined(ENABLE_ALSA)
+#include <alsa/asoundlib.h>
 #endif
 
 #include <stddef.h>
@@ -86,6 +88,13 @@ class PCMPlayer {
   int16_t buffers[3][4096];
 
 #elif defined(WIN32)
+#elif defined(ENABLE_ALSA)
+  #define BUFFER_SIZE 4096 
+  snd_async_handler_t *pcm_callback;
+ 
+  snd_pcm_t *pcm_handle;
+  snd_pcm_hw_params_t *hw_params;
+  snd_pcm_sw_params_t *sw_params;
 #else
 #endif
 
@@ -111,6 +120,12 @@ public:
 #ifdef ANDROID
   void Enqueue();
 #elif defined(WIN32)
+#elif defined(ENABLE_ALSA)
+  snd_pcm_uframes_t buffer_size = BUFFER_SIZE;
+  snd_pcm_uframes_t period_size = 128;
+  int16_t pcm_buffer[BUFFER_SIZE]; 
+  void Synthesise(void *buffer, size_t n);
+
 #else
   void Synthesise(void *buffer, size_t n);
 #endif

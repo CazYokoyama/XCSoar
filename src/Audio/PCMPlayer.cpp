@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -32,13 +32,15 @@ Copyright_License {
 
 #include <SLES/OpenSLES_Android.h>
 #elif defined(WIN32)
-#else
+#elif defined(ENABLE_ALSA)
+#include <alsa/asoundlib.h>
+#elif defined(ENABLE_SDL)
 #include <SDL_audio.h>
 #endif
 
 #include <assert.h>
 
-PCMPlayer::PCMPlayer():sample_rate(0), synthesiser(NULL) {}
+PCMPlayer::PCMPlayer():sample_rate(0), synthesiser(nullptr) {}
 
 PCMPlayer::~PCMPlayer()
 {
@@ -60,6 +62,51 @@ PlayedCallback(SLAndroidSimpleBufferQueueItf caller, void *pContext)
 }
 
 #elif defined(WIN32)
+#elif defined(ENABLE_ALSA)
+static void
+ALSA_callback (snd_async_handler_t *pcm_callback)
+{
+  snd_pcm_t *pcm_handle = snd_async_handler_get_pcm(pcm_callback);
+  snd_pcm_sframes_t avail;
+ // snd_pcm_uframes_t buffer_size;
+  snd_pcm_uframes_t period_size;
+  //snd_pcm_hw_params_t hw_params;
+
+
+  PCMPlayer &player = *(PCMPlayer *)snd_async_handler_get_callback_private(pcm_callback);
+
+//   buffer_size=player.buffer_size;
+   period_size=player.period_size;
+
+  /*snd_pcm_hw_params_current(pcm_handle, &hw_params);
+
+  snd_pcm_hw_params_get_period_size( &hw_params,&period_size, NULL);
+  snd_pcm_hw_params_get_buffer_size( &hw_params,&buffer_size); 	
+*/
+  
+  if ((avail = snd_pcm_avail_update(pcm_handle)) < 0) {
+    if (avail == -EPIPE) {
+      /*underrun occured, reset the sound device*/ 					
+      snd_pcm_prepare(pcm_handle);
+    }
+  }
+
+  player.Synthesise((player.pcm_buffer), period_size);
+
+  int i=0;
+  while (avail >= (snd_pcm_sframes_t) period_size) {
+    snd_pcm_writei(pcm_handle, player.pcm_buffer, period_size);
+    i++;
+    if ((avail = snd_pcm_avail_update(pcm_handle)) < 0) {
+      if (avail == -EPIPE) {
+        /*underrun occured, reset the sound device*/ 					
+        snd_pcm_prepare(pcm_handle);
+        printf("underrun\n");
+      }
+     }
+  }	
+	
+}
 #else
 
 static void
@@ -90,7 +137,8 @@ PCMPlayer::Start(PCMSynthesiser &_synthesiser, unsigned _sample_rate)
   /* why, oh why is OpenSL/ES so complicated? */
 
   SLObjectItf _object;
-  SLresult result = SLES::CreateEngine(&_object, 0, NULL, 0, NULL, NULL);
+  SLresult result = SLES::CreateEngine(&_object, 0, nullptr,
+                                       0, nullptr, nullptr);
   if (result != SL_RESULT_SUCCESS) {
     LogFormat("PCMPlayer: slCreateEngine() result=%#x", (int)result);
     return false;
@@ -116,7 +164,7 @@ PCMPlayer::Start(PCMSynthesiser &_synthesiser, unsigned _sample_rate)
 
   SLES::Engine engine(_engine);
 
-  result = engine.CreateOutputMix(&_object, 0, NULL, NULL);
+  result = engine.CreateOutputMix(&_object, 0, nullptr, nullptr);
   if (result != SL_RESULT_SUCCESS) {
     LogFormat("PCMPlayer: CreateOutputMix() result=%#x", (int)result);
     engine_object.Destroy();
@@ -158,7 +206,7 @@ PCMPlayer::Start(PCMSynthesiser &_synthesiser, unsigned _sample_rate)
 
   SLDataSink audioSnk = {
     &loc_outmix,
-    NULL,
+    nullptr,
   };
 
   const SLInterfaceID ids2[] = {
@@ -234,7 +282,7 @@ PCMPlayer::Start(PCMSynthesiser &_synthesiser, unsigned _sample_rate)
     play_object.Destroy();
     mix_object.Destroy();
     engine_object.Destroy();
-    synthesiser = NULL;
+    synthesiser = nullptr;
     return false;
   }
 
@@ -245,8 +293,64 @@ PCMPlayer::Start(PCMSynthesiser &_synthesiser, unsigned _sample_rate)
 
   return true;
 #elif defined(WIN32)
+#elif defined(ENABLE_ALSA)
+ if (synthesiser != nullptr) {
+    if (_sample_rate == sample_rate) {
+      /* already open, just change the synthesiser */
+      snd_pcm_nonblock(pcm_handle,0);
+      synthesiser = &_synthesiser;
+      snd_pcm_nonblock(pcm_handle,1);
+      return true;
+    }
+
+    Stop();
+  }
+  sample_rate = _sample_rate;
+
+
+  if (snd_pcm_open(&pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0 ||
+      snd_pcm_hw_params_malloc(&hw_params) < 0 ||   		
+      snd_pcm_hw_params_any(pcm_handle, hw_params) < 0 ||
+      snd_pcm_hw_params_set_access(pcm_handle, hw_params, 
+                                   SND_PCM_ACCESS_RW_INTERLEAVED) < 0 ||
+      snd_pcm_hw_params_set_format(pcm_handle, hw_params, 
+                                   SND_PCM_FORMAT_S16_LE) < 0 ||
+      snd_pcm_hw_params_set_rate_near(pcm_handle, 
+                                      hw_params, &sample_rate, 0) < 0 ||
+      snd_pcm_hw_params_set_channels(pcm_handle, hw_params, 1) < 0 ||
+      snd_pcm_hw_params_set_buffer_size_near (pcm_handle, hw_params, 
+                                              &buffer_size) <0 ||
+      snd_pcm_hw_params_set_period_size_near (pcm_handle, hw_params, 
+                                              &period_size, NULL) <0 ||
+      snd_pcm_hw_params (pcm_handle, hw_params) < 0) {
+    return false;
+  }
+  snd_pcm_hw_params_free(hw_params);
+  if (snd_pcm_sw_params_malloc(&sw_params) < 0 ||
+      snd_pcm_sw_params_current(pcm_handle, sw_params) < 0 ||
+      snd_pcm_sw_params_set_avail_min(pcm_handle, 
+                                       sw_params, 128) < 0 ||
+      snd_pcm_sw_params_set_start_threshold(pcm_handle, 
+                                            sw_params, 0U) < 0 ||
+      snd_pcm_sw_params(pcm_handle, sw_params)  < 0 ||
+      snd_pcm_prepare(pcm_handle) < 0) {
+    return false;
+  }
+  snd_pcm_sw_params_free(sw_params);
+  
+  for (int i=0;i<4096;i++)
+     pcm_buffer[i]=0; //(short)(20*i);
+  synthesiser = &_synthesiser;
+  Synthesise(pcm_buffer,buffer_size);
+  snd_pcm_writei(pcm_handle, pcm_buffer, 2*period_size);
+  snd_pcm_pause(pcm_handle,0);
+  //.....
+  snd_async_add_pcm_handler(&pcm_callback, pcm_handle, ALSA_callback, (void *)this);
+  snd_pcm_start(pcm_handle);
+  printf("pcm playback started\n");
+  return true;
 #else
-  if (synthesiser != NULL) {
+  if (synthesiser != nullptr) {
     if (_sample_rate == sample_rate) {
       /* already open, just change the synthesiser */
       SDL_LockAudio();
@@ -268,7 +372,7 @@ PCMPlayer::Start(PCMSynthesiser &_synthesiser, unsigned _sample_rate)
   spec.callback = ::Synthesise;
   spec.userdata = this;
 
-  if (SDL_OpenAudio(&spec, NULL) < 0)
+  if (SDL_OpenAudio(&spec, nullptr) < 0 )
     return false;
 
   synthesiser = &_synthesiser;
@@ -282,7 +386,7 @@ void
 PCMPlayer::Stop()
 {
 #ifdef ANDROID
-  if (synthesiser == NULL)
+  if (synthesiser == nullptr)
     return;
 
   play.SetPlayState(SL_PLAYSTATE_PAUSED);
@@ -291,15 +395,23 @@ PCMPlayer::Stop()
   engine_object.Destroy();
 
   sample_rate = 0;
-  synthesiser = NULL;
+  synthesiser = nullptr;
 #elif defined(WIN32)
+#elif defined(ENABLE_ALSA)
+  snd_async_del_handler (pcm_callback); 
+  snd_pcm_drop(pcm_handle);
+  snd_pcm_close (pcm_handle);
+  if (synthesiser == nullptr)
+    return;
+  sample_rate = 0;
+  synthesiser = nullptr;
 #else
-  if (synthesiser == NULL)
+  if (synthesiser == nullptr)
     return;
 
   SDL_CloseAudio();
   sample_rate = 0;
-  synthesiser = NULL;
+  synthesiser = nullptr;
 #endif
 }
 
@@ -308,7 +420,7 @@ PCMPlayer::Stop()
 void
 PCMPlayer::Enqueue()
 {
-  assert(synthesiser != NULL);
+  assert(synthesiser != nullptr);
 
   ScopeLock protect(mutex);
 
@@ -328,12 +440,20 @@ PCMPlayer::Enqueue()
 }
 
 #elif defined(WIN32)
+#elif defined(ENABLE_ALSA)
+void
+PCMPlayer::Synthesise(void *buffer, size_t n)
+{
+  assert(synthesiser != nullptr);
+
+  synthesiser->Synthesise((int16_t *)buffer, n);
+}
 #else
 
 void
 PCMPlayer::Synthesise(void *buffer, size_t n)
 {
-  assert(synthesiser != NULL);
+  assert(synthesiser != nullptr);
 
   synthesiser->Synthesise((int16_t *)buffer, n);
 }
