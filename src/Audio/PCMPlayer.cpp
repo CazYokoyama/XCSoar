@@ -398,11 +398,11 @@ PCMPlayer::Stop()
   synthesiser = nullptr;
 #elif defined(WIN32)
 #elif defined(ENABLE_ALSA)
+  if (synthesiser == nullptr)
+    return;
   snd_async_del_handler (pcm_callback); 
   snd_pcm_drop(pcm_handle);
   snd_pcm_close (pcm_handle);
-  if (synthesiser == nullptr)
-    return;
   sample_rate = 0;
   synthesiser = nullptr;
 #else
