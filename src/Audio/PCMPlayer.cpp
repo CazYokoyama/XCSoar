@@ -68,22 +68,11 @@ ALSA_callback (snd_async_handler_t *pcm_callback)
 {
   snd_pcm_t *pcm_handle = snd_async_handler_get_pcm(pcm_callback);
   snd_pcm_sframes_t avail;
- // snd_pcm_uframes_t buffer_size;
   snd_pcm_uframes_t period_size;
-  //snd_pcm_hw_params_t hw_params;
-
 
   PCMPlayer &player = *(PCMPlayer *)snd_async_handler_get_callback_private(pcm_callback);
+  period_size=player.period_size;
 
-//   buffer_size=player.buffer_size;
-   period_size=player.period_size;
-
-  /*snd_pcm_hw_params_current(pcm_handle, &hw_params);
-
-  snd_pcm_hw_params_get_period_size( &hw_params,&period_size, NULL);
-  snd_pcm_hw_params_get_buffer_size( &hw_params,&buffer_size); 	
-*/
-  
   if ((avail = snd_pcm_avail_update(pcm_handle)) < 0) {
     if (avail == -EPIPE) {
       /*underrun occured, reset the sound device*/ 					
@@ -93,15 +82,12 @@ ALSA_callback (snd_async_handler_t *pcm_callback)
 
   player.Synthesise((player.pcm_buffer), period_size);
 
-  int i=0;
   while (avail >= (snd_pcm_sframes_t) period_size) {
     snd_pcm_writei(pcm_handle, player.pcm_buffer, period_size);
-    i++;
     if ((avail = snd_pcm_avail_update(pcm_handle)) < 0) {
       if (avail == -EPIPE) {
         /*underrun occured, reset the sound device*/ 					
         snd_pcm_prepare(pcm_handle);
-        printf("underrun\n");
       }
      }
   }	
@@ -307,7 +293,6 @@ PCMPlayer::Start(PCMSynthesiser &_synthesiser, unsigned _sample_rate)
   }
   sample_rate = _sample_rate;
 
-
   if (snd_pcm_open(&pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0 ||
       snd_pcm_hw_params_malloc(&hw_params) < 0 ||   		
       snd_pcm_hw_params_any(pcm_handle, hw_params) < 0 ||
@@ -338,16 +323,12 @@ PCMPlayer::Start(PCMSynthesiser &_synthesiser, unsigned _sample_rate)
   }
   snd_pcm_sw_params_free(sw_params);
   
-  for (int i=0;i<4096;i++)
-     pcm_buffer[i]=0; //(short)(20*i);
   synthesiser = &_synthesiser;
   Synthesise(pcm_buffer,buffer_size);
   snd_pcm_writei(pcm_handle, pcm_buffer, 2*period_size);
   snd_pcm_pause(pcm_handle,0);
-  //.....
   snd_async_add_pcm_handler(&pcm_callback, pcm_handle, ALSA_callback, (void *)this);
   snd_pcm_start(pcm_handle);
-  printf("pcm playback started\n");
   return true;
 #else
   if (synthesiser != nullptr) {
@@ -400,7 +381,7 @@ PCMPlayer::Stop()
 #elif defined(ENABLE_ALSA)
   if (synthesiser == nullptr)
     return;
-  snd_pcm_drop(pcm_handle);
+  //snd_pcm_drop(pcm_handle);
   snd_pcm_close (pcm_handle);
   sample_rate = 0;
   synthesiser = nullptr;
