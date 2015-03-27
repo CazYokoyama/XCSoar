@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -79,7 +79,7 @@ public:
                       const fixed xmax, const fixed ymax,
                       const Brush &brush);
   void DrawFilledY(const std::vector< std::pair<fixed, fixed> > &vals, const Brush &brush,
-                   const Pen* pen= NULL);
+                   const Pen *pen=nullptr);
   void DrawDot(const fixed x, const fixed y, const PixelScalar width);
 
   void ScaleYFromData(const LeastSquares &lsdata);

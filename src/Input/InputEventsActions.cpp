@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -232,7 +232,6 @@ InputEvents::eventAnalysis(gcc_unused const TCHAR *misc)
                        CommonInterface::main_window->GetLook(),
                        CommonInterface::Full(),
                        *glide_computer,
-                       protected_task_manager,
                        &airspace_database,
                        terrain);
 }
@@ -356,7 +355,7 @@ InputEvents::eventLogger(const TCHAR *misc)
     } else {
       Message::AddMessage(_("Logger off"));
     }
-  else if (_tcsncmp(misc, _T("note"), 4))
+  else if (StringIsEqual(misc, _T("note"), 4))
     // add note to logger file if available..
     logger->LoggerNote(misc + 4);
 }

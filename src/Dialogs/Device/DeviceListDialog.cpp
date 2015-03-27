@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -36,10 +36,12 @@ Copyright_License {
 #include "Util/TrivialArray.hpp"
 #include "Util/StaticString.hpp"
 #include "Util/Macros.hpp"
-#include "Device/List.hpp"
+#include "Device/MultipleDevices.hpp"
 #include "Device/Descriptor.hpp"
 #include "Device/Register.hpp"
+#include "Device/Port/Listener.hpp"
 #include "Device/Driver/LX/Internal.hpp"
+#include "Event/Notify.hpp"
 #include "Blackboard/DeviceBlackboard.hpp"
 #include "Blackboard/BlackboardListener.hpp"
 #include "Components.hpp"
@@ -63,7 +65,7 @@ Copyright_License {
 
 class DeviceListWidget final
   : public ListWidget, private ActionListener,
-    private NullBlackboardListener {
+    NullBlackboardListener, PortListener, Notify {
   enum Buttons {
     DISABLE,
     RECONNECT, FLIGHT, EDIT, MANAGE, MONITOR,
@@ -191,6 +193,7 @@ public:
   virtual void Show(const PixelRect &rc) override {
     ListWidget::Show(rc);
 
+    devices->AddPortListener(*this);
     CommonInterface::GetLiveBlackboard().AddListener(*this);
 
     RefreshList();
@@ -201,6 +204,7 @@ public:
     ListWidget::Hide();
 
     CommonInterface::GetLiveBlackboard().RemoveListener(*this);
+    devices->RemovePortListener(*this);
   }
 
   /* virtual methods from class List::Handler */
@@ -214,6 +218,17 @@ private:
 
   /* virtual methods from class BlackboardListener */
   virtual void OnGPSUpdate(const MoreData &basic) override;
+
+  /* virtual methods from class PortListener */
+  void PortStateChanged() override {
+    Notify::SendNotification();
+  }
+
+  /* virtual methods from class Notify */
+  void OnNotification() override {
+    if (RefreshList())
+      UpdateButtons();
+  }
 };
 
 void
@@ -240,7 +255,7 @@ DeviceListWidget::RefreshList()
 
     Item n;
     n.Set(CommonInterface::GetSystemSettings().devices[i],
-          *device_list[i], device_blackboard->RealState(i));
+          (*devices)[i], device_blackboard->RealState(i));
 
     if (n != item) {
       item = n;
@@ -288,7 +303,7 @@ DeviceListWidget::UpdateButtons()
     monitor_button->SetEnabled(false);
     debug_button->SetEnabled(false);
   } else {
-    const DeviceDescriptor &device = *device_list[current];
+    const DeviceDescriptor &device = (*devices)[current];
 
     reconnect_button->SetEnabled(!device.GetConfig().IsDisabled());
     flight_button->SetEnabled(device.IsLogger());
@@ -425,7 +440,7 @@ DeviceListWidget::EnableDisableCurrent()
 
   /* .. and reopen the device */
 
-  DeviceDescriptor &descriptor = *device_list[index];
+  DeviceDescriptor &descriptor = (*devices)[index];
   descriptor.SetConfig(config);
 
   GetList().Invalidate();
@@ -456,7 +471,7 @@ DeviceListWidget::ReconnectCurrent()
   }
 #endif
 
-  DeviceDescriptor &device = *device_list[current];
+  DeviceDescriptor &device = (*devices)[current];
   if (device.IsBorrowed()) {
     ShowMessageBox(_("Device is occupied"), _("Reconnect"), MB_OK | MB_ICONERROR);
     return;
@@ -476,7 +491,7 @@ DeviceListWidget::DownloadFlightFromCurrent()
   if (current >= NUMDEV)
     return;
 
-  DeviceDescriptor &device = *device_list[current];
+  DeviceDescriptor &device = (*devices)[current];
   if (!device.IsLogger())
     return;
 
@@ -519,7 +534,7 @@ DeviceListWidget::EditCurrent()
 
   /* .. and reopen the device */
 
-  DeviceDescriptor &descriptor = *device_list[index];
+  DeviceDescriptor &descriptor = (*devices)[index];
   descriptor.SetConfig(widget.GetConfig());
 
   GetList().Invalidate();
@@ -538,7 +553,7 @@ DeviceListWidget::ManageCurrent()
   if (current >= NUMDEV)
     return;
 
-  DeviceDescriptor &descriptor = *device_list[current];
+  DeviceDescriptor &descriptor = (*devices)[current];
   if (!descriptor.IsManageable())
     return;
 
@@ -597,7 +612,7 @@ DeviceListWidget::MonitorCurrent()
   if (current >= NUMDEV)
     return;
 
-  DeviceDescriptor &descriptor = *device_list[current];
+  DeviceDescriptor &descriptor = (*devices)[current];
   ShowPortMonitor(descriptor);
 }
 
@@ -608,7 +623,7 @@ DeviceListWidget::DebugCurrent()
   if (current >= NUMDEV)
     return;
 
-  DeviceDescriptor &device = *device_list[current];
+  DeviceDescriptor &device = (*devices)[current];
   if (!device.GetConfig().UsesPort() || device.GetState() != PortState::READY)
     return;
 

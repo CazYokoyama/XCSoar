@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -65,8 +65,15 @@ public:
               const PixelRect &rc, int CaptionWidth,
               const WindowStyle style);
 
+  WndProperty(const DialogLook &_look);
+
   /** Destructor */
   ~WndProperty();
+
+  void Create(ContainerWindow &parent, const PixelRect &rc,
+              const TCHAR *_caption,
+              unsigned _caption_width,
+              const WindowStyle style);
 
 protected:
   int CallSpecial();
@@ -97,7 +104,7 @@ public:
    * available, then the ComboPicker  will be launched, otherwise, the
    * focus and cursor is set to the control.
    *
-   * @return false on failure
+   * @return true if the value has been modified
    */
   bool BeginEditing();
 

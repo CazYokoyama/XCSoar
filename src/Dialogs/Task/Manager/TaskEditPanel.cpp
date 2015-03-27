@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -143,18 +143,17 @@ private:
 
 public:
   /* virtual methods from Widget */
-  virtual PixelSize GetMinimumSize() const override {
+  PixelSize GetMinimumSize() const override {
     return { ::Layout::Scale(180u),
         ::Layout::GetMinimumControlHeight() };
   }
 
-  virtual PixelSize GetMaximumSize() const override {
+  PixelSize GetMaximumSize() const override {
     return { ::Layout::Scale(400u),
         ::Layout::GetMaximumControlHeight() };
   }
 
-  virtual void Prepare(ContainerWindow &parent,
-                       const PixelRect &rc) override {
+  void Prepare(ContainerWindow &parent, const PixelRect &rc) override {
     assert(!visible);
 
     ButtonWindowStyle style;
@@ -184,7 +183,7 @@ public:
                                      *listener, CLEAR_ALL);
   }
 
-  virtual void Unprepare() override {
+  void Unprepare() override {
     assert(!visible);
 
     delete clear_all_button;
@@ -195,7 +194,7 @@ public:
     delete edit_button;
   }
 
-  virtual void Show(const PixelRect &rc) override {
+  void Show(const PixelRect &rc) override {
     assert(!visible);
     visible = true;
 
@@ -203,7 +202,7 @@ public:
     UpdateVisibility();
   }
 
-  virtual void Hide() override {
+  void Hide() override {
     assert(visible);
     visible = false;
 
@@ -215,7 +214,7 @@ public:
     clear_all_button->Hide();
   }
 
-  virtual void Move(const PixelRect &rc) override {
+  void Move(const PixelRect &rc) override {
     UpdatePositions(rc);
   }
 };
@@ -261,30 +260,29 @@ public:
   void OnMakeFinish();
 
   /* virtual methods from Widget */
-  virtual void Prepare(ContainerWindow &parent, const PixelRect &rc) override;
+  void Prepare(ContainerWindow &parent, const PixelRect &rc) override;
 
-  virtual void Unprepare() override {
+  void Unprepare() override {
     DeleteWindow();
   }
 
-  virtual void ReClick() override;
-  virtual void Show(const PixelRect &rc) override;
-  virtual void Hide() override;
-  virtual bool KeyPress(unsigned key_code) override;
+  void ReClick() override;
+  void Show(const PixelRect &rc) override;
+  void Hide() override;
+  bool KeyPress(unsigned key_code) override;
 
 protected:
   void RefreshView();
 
 private:
   /* virtual methods from ActionListener */
-  virtual void OnAction(int id) override;
+  void OnAction(int id) override;
 
   /* virtual methods from List::Handler */
-  virtual void OnPaintItem(Canvas &canvas, const PixelRect rc,
-                           unsigned idx) override;
-  virtual void OnCursorMoved(unsigned index) override;
-  virtual bool CanActivateItem(unsigned index) const override;
-  virtual void OnActivateItem(unsigned index) override;
+  void OnPaintItem(Canvas &canvas, const PixelRect rc, unsigned idx) override;
+  void OnCursorMoved(unsigned index) override;
+  bool CanActivateItem(unsigned index) const override;
+  void OnActivateItem(unsigned index) override;
 };
 
 void
@@ -423,7 +421,7 @@ TaskEditPanel::OnPaintItem(Canvas &canvas, const PixelRect rc,
   // Draw "Add turnpoint" label
   if (DrawListIndex == ordered_task->TaskSize()) {
     canvas.Select(name_font);
-    _stprintf(buffer, _T("  (%s)"), _("Add Turnpoint"));
+    StringFormatUnsafe(buffer, _T("  (%s)"), _("Add Turnpoint"));
     canvas.DrawText(rc.left + line_height + padding,
                     rc.top + line_height / 2 - name_font.GetHeight() / 2,
                     buffer);

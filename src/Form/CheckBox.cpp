@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -30,9 +30,8 @@ CheckBoxControl::CheckBoxControl(ContainerWindow &parent,
                                  const DialogLook &look,
                                  tstring::const_pointer caption,
                                  const PixelRect &rc,
-                                 const CheckBoxStyle style,
-                                 ClickNotifyCallback _click_notify_callback)
-  :listener(nullptr), click_notify_callback(_click_notify_callback)
+                                 const CheckBoxStyle style)
+  :listener(nullptr)
 {
   CheckBox::Create(parent, caption, rc, style);
   SetFont(*look.text_font);
@@ -65,12 +64,6 @@ CheckBoxControl::OnClicked()
 #endif
 
     listener->OnAction(id);
-    return true;
-  }
-
-  // Call the OnClick function
-  if (click_notify_callback != NULL) {
-    click_notify_callback(*this);
     return true;
   }
 

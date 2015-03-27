@@ -11,10 +11,11 @@ Version 6.8 - not yet released
   - remove option "Ignore checksum"
   - LX: implement LXNAV Nano3 task declaration (#3295)
   - Volkslogger: support DAeC keyhole declaration
+  - added TCP port 2000 to portlist (part of #3326)
 * calculations
+  - wave assistant
   - use maximum speed configured in plane setup as limit for calculations
   - use WGS84 earth ellipsoid for distance calculations (#2809)
-  - simplified EKF wind algorithm
 * airspace cross-section
   - sync map & cross-section view zoom setting (#2913)
 * infoboxes
@@ -23,6 +24,7 @@ Version 6.8 - not yet released
   - added one-click task reversal (#1730)
   - show name of loaded/saved tasks in dialog title (#1924)
 * user interface 
+  - download data files from site configuration
   - checklist remembers last opened list (#3110)
   - use configured coordinate format in waypoint editor
   - display rotation for Raspberry Pi and Cubieboard (#3238)
@@ -30,18 +32,32 @@ Version 6.8 - not yet released
   - support mouse wheel on Raspberry Pi and Cubieboard
   - scale touchscreen coordinates to screen size
   - new translation: Simplified Chinese
+* Linux
+  - Wayland support
 * Android
   - fix IOIO connection on Android 4.x (#2959, #3260)
 * Kobo
+  - menu button
   - add UI allowing the start of external scripts to KoboMenu (#3194)
   - support Wifi with WEP (#3138)
   - support open Wifi networks (#3391)
   - support USB-OTG
   - export data partition via USB storage
 
-Version 6.7.7 - not yet released
+Version 6.7.7 - 2015/02/20
 * airspace
-  - accept airspaces of class RMZ in OpenAir format files
+  - accept airspaces of class RMZ in OpenAir format files (#3437)
+  - fix wrong AGL height due to longitude east/west wraparound (#3468)
+* infoboxes
+  - fix data for OLC infoboxes if "OLC League" is used (#3461)
+* calculations
+  - fix handicap factor for "OLC League" scores
+  - fix reach calculation problems at border of map (#3239)
+  - simplified EKF wind algorithm (#3062)
+* input events
+  - allow '_' character in event identifiers (#3464)
+* replay
+  - fix replay progress while replay is paused (#3446)
 
 Version 6.7.6 - 2014/10/18
 * tracking

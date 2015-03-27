@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -115,6 +115,9 @@ private:
   }
 
 protected:
+  using Thread::SetLowPriority;
+  using Thread::SetIdlePriority;
+
   /**
    * Wakes up the thread to do work, calls Tick().  If the thread is
    * not already running, it is launched.  Must not be called while

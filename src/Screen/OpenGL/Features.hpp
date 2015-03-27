@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -41,7 +41,9 @@ Copyright_License {
 /**
  * The OES_draw_texture extension is available.
  */
+#ifndef HAVE_GLES2
 #define HAVE_OES_DRAW_TEXTURE
+#endif
 
 #endif
 
@@ -49,7 +51,7 @@ Copyright_License {
 #define HAVE_OES_MAPBUFFER
 #endif
 
-#if defined(HAVE_MALI) || defined(WIN32) || (defined(HAVE_GLES) && defined(MESA_KMS))
+#if defined(HAVE_MALI) || defined(WIN32) || (defined(HAVE_GLES) && (defined(MESA_KMS) || defined(USE_X11)))
 #define HAVE_DYNAMIC_MAPBUFFER
 #endif
 

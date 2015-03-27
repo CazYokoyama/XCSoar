@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ Copyright_License {
 #include "NMEA/InputLine.hpp"
 #include "NMEA/Checksum.hpp"
 #include "Util/Macros.hpp"
-#include "Util/FifoBuffer.hpp"
+#include "Util/StaticFifoBuffer.hpp"
 #include "Util/StaticString.hpp"
 
 #include <string>
@@ -43,7 +43,7 @@ class FLARMEmulator : public Emulator, PortLineSplitter {
   std::map<std::string, std::string> settings;
 
   bool binary;
-  FifoBuffer<char, 256u> binary_buffer;
+  StaticFifoBuffer<char, 256u> binary_buffer;
 
 public:
   FLARMEmulator():binary(false) {

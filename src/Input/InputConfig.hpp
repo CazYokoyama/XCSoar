@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -47,7 +47,9 @@ struct InputConfig {
   static constexpr unsigned MAX_MODE_STRING = 24;
 #ifdef ENABLE_SDL
   static constexpr unsigned MAX_KEY = 400;
-#elif defined(USE_CONSOLE) || defined(NON_INTERACTIVE)
+#elif defined(USE_X11)
+  static constexpr unsigned MAX_KEY = 0x10000;
+#elif defined(USE_POLL_EVENT)
   static constexpr unsigned MAX_KEY = 0600;
 #else
   static constexpr unsigned MAX_KEY = 255;

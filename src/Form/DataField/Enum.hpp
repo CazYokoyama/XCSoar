@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -156,7 +156,9 @@ public:
    * @param value True if display item help in text box below picker
    * Displays help strings associated with enums Items
    */
-  void EnableItemHelp(bool value) { item_help_enabled = value; }
+  void EnableItemHelp(bool value) override {
+    item_help_enabled = value;
+  }
 
   void Set(unsigned Value);
 

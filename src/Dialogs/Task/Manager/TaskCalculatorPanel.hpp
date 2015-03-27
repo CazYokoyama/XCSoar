@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -68,18 +68,18 @@ public:
   void Refresh();
 
   /* virtual methods from Widget */
-  virtual void Prepare(ContainerWindow &parent, const PixelRect &rc) override;
-  virtual void Show(const PixelRect &rc) override;
-  virtual void Hide() override;
+  void Prepare(ContainerWindow &parent, const PixelRect &rc) override;
+  void Show(const PixelRect &rc) override;
+  void Hide() override;
 
 private:
   /* virtual methods from DataFieldListener */
-  virtual void OnModified(DataField &df) override;
-  virtual void OnSpecial(DataField &df) override;
+  void OnModified(DataField &df) override;
+  void OnSpecial(DataField &df) override;
 
   /* virtual methods from NullBlackboardListener */
-  virtual void OnCalculatedUpdate(const MoreData &basic,
-                                  const DerivedInfo &calculated) override {
+  void OnCalculatedUpdate(const MoreData &basic,
+                          const DerivedInfo &calculated) override {
     Refresh();
   }
 };

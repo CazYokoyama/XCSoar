@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -30,7 +30,6 @@ Copyright_License {
 #include "MainWindow.hpp"
 #include "LogFile.hpp"
 #include "Language/Language.hpp"
-#include "Dialogs/XML.hpp"
 #include "Widget/RowFormWidget.hpp"
 #include "UIGlobals.hpp"
 #include "UtilsSettings.hpp"
@@ -176,10 +175,10 @@ LayoutConfigPanel::Prepare(ContainerWindow &parent, const PixelRect &rc)
           (unsigned)ui_settings.traffic.gauge_location);
   SetExpertRow(AppFlarmLocation);
 
-  AddEnum(_("Tab dialog style"), NULL,
+  AddEnum(_("Tab dialog style"), nullptr,
           tabdialog_style_list, (unsigned)ui_settings.dialog.tab_style);
 
-  AddEnum(_("Message display"), NULL,
+  AddEnum(_("Message display"), nullptr,
           popup_msg_position_list,
           (unsigned)ui_settings.popup_message_position);
   SetExpertRow(AppStatusMessageAlignment);

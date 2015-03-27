@@ -2,7 +2,7 @@
   Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@
 #ifndef XCSOAR_DEVICE_PORT_NMEA_READER_HPP
 #define XCSOAR_DEVICE_PORT_NMEA_READER_HPP
 
-#include "Util/FifoBuffer.hpp"
+#include "Util/StaticFifoBuffer.hpp"
 
 class Port;
 class OperationEnvironment;
@@ -33,7 +33,7 @@ class TimeoutClock;
 class PortNMEAReader {
   Port &port;
   OperationEnvironment &env;
-  FifoBuffer<char, 256u> buffer;
+  StaticFifoBuffer<char, 256u> buffer;
 
 public:
   PortNMEAReader(Port &_port, OperationEnvironment &_env)

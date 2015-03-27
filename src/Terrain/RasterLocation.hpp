@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -57,6 +57,41 @@ struct RasterLocation {
   unsigned ManhattanDistance(const RasterLocation &other) const {
     return std::abs((int)x - (int)other.x) +
       std::abs((int)y - (int)other.y);
+  }
+};
+
+struct SignedRasterLocation {
+  int x, y;
+
+  SignedRasterLocation() = default;
+  constexpr SignedRasterLocation(int _x, int _y):x(_x), y(_y) {}
+
+  constexpr SignedRasterLocation(RasterLocation other)
+    :x(other.x), y(other.y) {}
+
+  constexpr operator RasterLocation() const {
+    return RasterLocation(x, y);
+  }
+
+  constexpr bool operator==(SignedRasterLocation other) const {
+    return x == other.x && y == other.y;
+  }
+
+  constexpr bool operator!=(SignedRasterLocation other) const {
+    return !(*this == other);
+  }
+
+  constexpr SignedRasterLocation operator>>(int bits) const {
+    return SignedRasterLocation(x >> bits, y >> bits);
+  }
+
+  constexpr SignedRasterLocation operator<<(int bits) const {
+    return SignedRasterLocation(x << bits, y << bits);
+  }
+
+  gcc_pure
+  unsigned ManhattanDistance(SignedRasterLocation other) const {
+    return std::abs(x - other.x) + std::abs(y - other.y);
   }
 };
 

@@ -2,7 +2,7 @@
  Copyright_License {
 
  XCSoar Glide Computer - http://www.xcsoar.org/
- Copyright (C) 2000-2014 The XCSoar Project
+ Copyright (C) 2000-2015 The XCSoar Project
  A detailed list of copyright holders can be found in the file "AUTHORS".
 
  This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@
  */
 
 #include "Task/TaskFileSeeYou.hpp"
+#include "Util/StringAPI.hpp"
 #include "Util/Macros.hpp"
 #include "IO/FileLineReader.hpp"
 #include "Engine/Waypoint/Waypoints.hpp"
@@ -156,12 +157,12 @@ ParseOptions(SeeYouTaskInformation *task_info, const TCHAR *params[],
 {
   // Iterate through available task options
   for (unsigned i = 1; i < n_params; i++) {
-    if (_tcsncmp(params[i], _T("WpDis"), 5) == 0) {
+    if (StringIsEqual(params[i], _T("WpDis"), 5)) {
       // Parse WpDis option
       if (_tcslen(params[i]) > 6 &&
-          _tcsncmp(params[i] + 6, _T("False"), 5) == 0)
+          StringIsEqual(params[i] + 6, _T("False"), 5))
         task_info->wp_dis = false;
-    } else if (_tcsncmp(params[i], _T("TaskTime"), 8) == 0) {
+    } else if (StringIsEqual(params[i], _T("TaskTime"), 8)) {
       // Parse TaskTime option
       if (_tcslen(params[i]) > 9)
         task_info->task_time = ParseTaskTime(params[i] + 9);
@@ -192,31 +193,31 @@ ParseOZs(SeeYouTurnpointInformation turnpoint_infos[], const TCHAR *params[],
     const TCHAR *pair = params[i];
     SeeYouTurnpointInformation &tp_info = turnpoint_infos[oz_index];
 
-    if (_tcsncmp(pair, _T("Style"), 5) == 0) {
+    if (StringIsEqual(pair, _T("Style"), 5)) {
       if (_tcslen(pair) > 6)
         tp_info.style = ParseStyle(pair + 6);
-    } else if (_tcsncmp(pair, _T("R1="), 3) == 0) {
+    } else if (StringIsEqual(pair, _T("R1="), 3)) {
       if (_tcslen(pair) > 3)
         tp_info.radius1 = ParseRadius(pair + 3);
-    } else if (_tcsncmp(pair, _T("A1="), 3) == 0) {
+    } else if (StringIsEqual(pair, _T("A1="), 3)) {
       if (_tcslen(pair) > 3)
         tp_info.angle1 = ParseAngle(pair + 3);
-    } else if (_tcsncmp(pair, _T("R2="), 3) == 0) {
+    } else if (StringIsEqual(pair, _T("R2="), 3)) {
       if (_tcslen(pair) > 3)
         tp_info.radius2 = ParseRadius(pair + 3);
-    } else if (_tcsncmp(pair, _T("A2="), 3) == 0) {
+    } else if (StringIsEqual(pair, _T("A2="), 3)) {
       if (_tcslen(pair) > 3)
         tp_info.angle2 = ParseAngle(pair + 3);
-    } else if (_tcsncmp(pair, _T("A12="), 4) == 0) {
+    } else if (StringIsEqual(pair, _T("A12="), 4)) {
       if (_tcslen(pair) > 3)
         tp_info.angle12 = ParseAngle(pair + 4);
-    } else if (_tcsncmp(pair, _T("MaxAlt="), 7) == 0) {
+    } else if (StringIsEqual(pair, _T("MaxAlt="), 7)) {
       if (_tcslen(pair) > 7)
         tp_info.max_altitude = ParseMaxAlt(pair + 7);
-      } else if (_tcsncmp(pair, _T("Line"), 4) == 0) {
+      } else if (StringIsEqual(pair, _T("Line"), 4)) {
       if (_tcslen(pair) > 5 && pair[5] == _T('1'))
         tp_info.is_line = true;
-    } else if (_tcsncmp(pair, _T("Reduce"), 6) == 0) {
+    } else if (StringIsEqual(pair, _T("Reduce"), 6)) {
       if (_tcslen(pair) > 7 && pair[7] == _T('1'))
         tp_info.reduce = true;
     }
@@ -245,11 +246,11 @@ ParseCUTaskDetails(FileLineReader &reader, SeeYouTaskInformation *task_info,
     const size_t n_params = WaypointReaderBase::
         ExtractParameters(line, params_buffer, params, max_params, true);
 
-    if (_tcscmp(params[0], _T("Options")) == 0) {
+    if (StringIsEqual(params[0], _T("Options"))) {
       // Options line found
       ParseOptions(task_info, params, n_params);
 
-    } else if (_tcsncmp(params[0], _T("ObsZone"), 7) == 0) {
+    } else if (StringIsEqual(params[0], _T("ObsZone"), 7)) {
       // Observation zone line found
       if (_tcslen(params[0]) <= 8)
         continue;
@@ -458,7 +459,7 @@ TaskFileSeeYou::GetTask(const TaskBehaviour &task_behaviour,
                         const Waypoints *waypoints, unsigned index) const
 {
   // Create FileReader for reading the task
-  FileLineReader reader(path, ConvertLineReader::AUTO);
+  FileLineReader reader(path, Charset::AUTO);
   if (reader.error())
     return NULL;
 
@@ -577,7 +578,7 @@ TaskFileSeeYou::Count()
   namesuffixes.clear();
 
   // Open the CUP file
-  FileLineReader reader(path, ConvertLineReader::AUTO);
+  FileLineReader reader(path, Charset::AUTO);
   if (reader.error())
     return 0;
 

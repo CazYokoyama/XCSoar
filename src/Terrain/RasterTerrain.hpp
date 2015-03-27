@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -76,6 +76,24 @@ public:
   short GetTerrainHeight(const GeoPoint location) const {
     Lease lease(*this);
     return lease->GetHeight(location);
+  }
+
+  /**
+   * Wrapper for GetTerrainHeight() that replaces "special" values
+   * with 0.  This is used when we need some "valid" value (and not
+   * some "magic" special value).  Sometimes, 0 is the best we can do.
+   *
+   * Use this function with care.  "0" is just a random value like any
+   * other.  Don't use it for calculations where the altitude matters
+   * (e.g. glide path calculations).
+   */
+  gcc_pure
+  short GetTerrainHeightOr0(const GeoPoint location) const {
+    short h = GetTerrainHeight(location);
+    if (RasterBuffer::IsSpecial(h))
+      /* apply fallback */
+      h = 0;
+    return h;
   }
 
   GeoPoint GetTerrainCenter() const {

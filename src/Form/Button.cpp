@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -29,37 +29,22 @@ Copyright_License {
 #include "Asset.hpp"
 
 WndButton::WndButton(ContainerWindow &parent, const ButtonLook &look,
-                     const TCHAR *Caption, const PixelRect &rc,
-                     ButtonWindowStyle style,
-                     ClickNotifyCallback _click_callback)
-  :renderer(look),
-   listener(NULL),
-   click_callback(nullptr)
-{
-  Create(parent, Caption, rc, style, _click_callback);
-}
-
-WndButton::WndButton(ContainerWindow &parent, const ButtonLook &look,
                      const TCHAR *caption, const PixelRect &rc,
                      ButtonWindowStyle style,
                      ActionListener &_listener, int _id)
-  :renderer(look), listener(nullptr), click_callback(nullptr)
+  :renderer(look), listener(nullptr)
 {
   Create(parent, caption, rc, style, _listener, _id);
 }
 
 WndButton::WndButton(const ButtonLook &_look)
-  :renderer(_look), listener(nullptr), click_callback(nullptr) {}
+  :renderer(_look), listener(nullptr) {}
 
 void
 WndButton::Create(ContainerWindow &parent,
                   tstring::const_pointer caption, const PixelRect &rc,
-                  ButtonWindowStyle style,
-                  ClickNotifyCallback _click_callback)
+                  ButtonWindowStyle style)
 {
-  click_callback = _click_callback;
-
-  style.EnableCustomPainting();
   ButtonWindow::Create(parent, caption, rc, style);
 }
 
@@ -68,8 +53,6 @@ WndButton::Create(ContainerWindow &parent,
                   tstring::const_pointer caption, const PixelRect &rc,
                   ButtonWindowStyle style,
                   ActionListener &_listener, int _id) {
-  assert(click_callback == nullptr);
-
   listener = &_listener;
 
   style.EnableCustomPainting();
@@ -86,17 +69,11 @@ WndButton::Create(ContainerWindow &parent,
 bool
 WndButton::OnClicked()
 {
-  if (listener != NULL) {
+  if (listener != nullptr) {
 #ifndef USE_GDI
     unsigned id = GetID();
 #endif
     listener->OnAction(id);
-    return true;
-  }
-
-  // Call the OnClick function
-  if (click_callback != NULL) {
-    click_callback();
     return true;
   }
 
@@ -113,7 +90,7 @@ WndButton::OnSetFocus()
   /* GDI's "BUTTON" class on Windows CE Core (e.g. Altair) does not
      repaint when the window gets focus, but our custom style requires
      it */
-  ::InvalidateRect(hWnd, NULL, false);
+  ::InvalidateRect(hWnd, nullptr, false);
 }
 
 void
@@ -123,7 +100,7 @@ WndButton::OnKillFocus()
 
   /* GDI's "BUTTON" class does not repaint when the window loses
      focus, but our custom style requires it */
-  ::InvalidateRect(hWnd, NULL, false);
+  ::InvalidateRect(hWnd, nullptr, false);
 }
 
 #endif

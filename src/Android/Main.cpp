@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@ Copyright_License {
 #include "Android/InternalSensors.hpp"
 #include "Android/PortBridge.hpp"
 #include "Android/BluetoothHelper.hpp"
+#include "Android/NativePortListener.hpp"
 #include "Android/NativeInputListener.hpp"
 #include "Android/TextUtil.hpp"
 #include "Android/LogCat.hpp"
@@ -95,6 +96,17 @@ extern "C" {
 }
 
 gcc_visibility_default
+JNIEXPORT jint JNICALL
+Java_org_xcsoar_NativeView_getEglContextClientVersion(JNIEnv *env, jobject obj)
+{
+#ifdef HAVE_GLES2
+  return 2;
+#else
+  return 1;
+#endif
+}
+
+gcc_visibility_default
 JNIEXPORT jboolean JNICALL
 Java_org_xcsoar_NativeView_initializeNative(JNIEnv *env, jobject obj,
                                             jobject _context,
@@ -114,6 +126,7 @@ Java_org_xcsoar_NativeView_initializeNative(JNIEnv *env, jobject obj,
 
   Environment::Initialise(env);
   InternalSensors::Initialise(env);
+  NativePortListener::Initialise(env);
   NativeInputListener::Initialise(env);
   PortBridge::Initialise(env);
   BluetoothHelper::Initialise(env);
@@ -140,7 +153,7 @@ Java_org_xcsoar_NativeView_initializeNative(JNIEnv *env, jobject obj,
   native_view = new NativeView(env, obj, width, height, xdpi, ydpi,
                                sdk_version, product);
 #ifdef __arm__
-  is_nook = strcmp(native_view->GetProduct(), "NOOK") == 0;
+  is_nook = StringIsEqual(native_view->GetProduct(), "NOOK");
 #endif
 
   event_queue = new EventQueue();
@@ -190,6 +203,8 @@ gcc_visibility_default
 JNIEXPORT void JNICALL
 Java_org_xcsoar_NativeView_deinitializeNative(JNIEnv *env, jobject obj)
 {
+  Shutdown();
+
   if (IsNookSimpleTouch()) {
     Nook::ExitFastMode();
   }
@@ -238,6 +253,7 @@ Java_org_xcsoar_NativeView_deinitializeNative(JNIEnv *env, jobject obj)
   IOIOHelper::Deinitialise(env);
   BluetoothHelper::Deinitialise(env);
   NativeInputListener::Deinitialise(env);
+  NativePortListener::Deinitialise(env);
   InternalSensors::Deinitialise(env);
   Environment::Deinitialise(env);
   Java::URL::Deinitialise(env);

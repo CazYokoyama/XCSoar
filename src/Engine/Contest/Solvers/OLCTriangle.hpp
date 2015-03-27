@@ -1,7 +1,7 @@
 /* Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -386,7 +386,7 @@ protected:
   std::tuple<unsigned, unsigned, unsigned, unsigned>
   RunBranchAndBound(unsigned from, unsigned to, unsigned best_d, bool exhaustive);
 
-  void UpdateTrace(bool force);
+  void UpdateTrace(bool force) override;
   void ResetBranchAndBound();
 
 public:

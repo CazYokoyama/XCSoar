@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -283,7 +283,7 @@ MapWindow::DrawTerrainAbove(Canvas &canvas)
 
     const ScopeVertexPointer vp(&visitor.fans.points[0]);
 
-    const GLEnable stencil_test(GL_STENCIL_TEST);
+    const GLEnable<GL_STENCIL_TEST> stencil_test;
     glClear(GL_STENCIL_BUFFER_BIT);
 
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -291,7 +291,7 @@ MapWindow::DrawTerrainAbove(Canvas &canvas)
     glStencilFunc(GL_ALWAYS, 1, 1);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-    COLOR_WHITE.Set();
+    COLOR_WHITE.Bind();
     visitor.fans.DrawFill(canvas);
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -383,7 +383,7 @@ MapWindow::DrawTerrainAbove(Canvas &canvas)
   glStencilFunc(GL_ALWAYS, 1, 1);
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-  COLOR_WHITE.Set();
+  COLOR_WHITE.Bind();
   visitor.fans.DrawFill(canvas);
 
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);

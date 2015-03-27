@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -342,7 +342,7 @@ GetHeadingString(TCHAR *buffer)
   FormatBearing(heading, ARRAY_SIZE(heading),
                 CommonInterface::Basic().attitude.heading);
 
-  _stprintf(buffer, _T("%s (%s)"), _("Heading"), heading);
+  StringFormatUnsafe(buffer, _T("%s (%s)"), _("Heading"), heading);
   return buffer;
 }
 
@@ -410,7 +410,7 @@ FillDistanceEnum(DataFieldEnum &df)
   TCHAR buffer[64];
   const TCHAR *unit = Units::GetDistanceName();
   for (unsigned i = 0; i < ARRAY_SIZE(distances); ++i) {
-    _stprintf(buffer, _T("%u %s"), distances[i], unit);
+    StringFormatUnsafe(buffer, _T("%u %s"), distances[i], unit);
     df.AddChoice(distances[i], buffer);
   }
 

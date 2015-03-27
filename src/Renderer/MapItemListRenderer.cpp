@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -120,12 +120,12 @@ MapItemListRenderer::Draw(Canvas &canvas, const PixelRect rc,
     FormatUserDistanceSmart(item.vector.distance, distance_buffer, 32);
     FormatBearing(direction_buffer, ARRAY_SIZE(direction_buffer),
                   item.vector.bearing);
-    _stprintf(info_buffer, _T("%s: %s, %s: %s"),
-              _("Distance"), distance_buffer,
-              _("Direction"), direction_buffer);
+    StringFormatUnsafe(info_buffer, _T("%s: %s, %s: %s"),
+                       _("Distance"), distance_buffer,
+                       _("Direction"), direction_buffer);
   } else {
-    _stprintf(info_buffer, _T("%s: %s, %s: %s"),
-              _("Distance"), _T("???"), _("Direction"), _T("???"));
+    StringFormatUnsafe(info_buffer, _T("%s: %s, %s: %s"),
+                       _("Distance"), _T("???"), _("Direction"), _T("???"));
   }
 
   canvas.Select(name_font);
@@ -136,9 +136,11 @@ MapItemListRenderer::Draw(Canvas &canvas, const PixelRect rc,
   TCHAR elevation_buffer[32];
   if (!RasterBuffer::IsSpecial(item.elevation)) {
     FormatUserAltitude(fixed(item.elevation), elevation_buffer, 32);
-    _stprintf(info_buffer, _T("%s: %s"), _("Elevation"), elevation_buffer);
+    StringFormatUnsafe(info_buffer, _T("%s: %s"), _("Elevation"),
+                       elevation_buffer);
   } else {
-    _stprintf(info_buffer, _T("%s: %s"), _("Elevation"), _T("???"));
+    StringFormatUnsafe(info_buffer, _T("%s: %s"), _("Elevation"),
+                       _T("???"));
   }
 
   canvas.Select(small_font);
@@ -467,8 +469,9 @@ MapItemListRenderer::Draw(Canvas &canvas, const PixelRect rc,
   const unsigned line_height = rc.bottom - rc.top;
   const unsigned text_padding = Layout::GetTextPadding();
 
-  const FlarmTraffic *traffic = traffic_list == NULL ? NULL :
-      traffic_list->FindTraffic(item.id);
+  const FlarmTraffic *traffic = traffic_list == nullptr
+    ? nullptr
+    : traffic_list->FindTraffic(item.id);
 
   // Now render the text information
   const Font &name_font = *dialog_look.list.font_bold;
@@ -485,7 +488,7 @@ MapItemListRenderer::Draw(Canvas &canvas, const PixelRect rc,
 
   // Append name to the title, if it exists
   const TCHAR *callsign = FlarmDetails::LookupCallsign(item.id);
-  if (callsign != NULL && !StringIsEmpty(callsign)) {
+  if (callsign != nullptr && !StringIsEmpty(callsign)) {
     title_string.append(_T(", "));
     title_string.append(callsign);
   }
@@ -497,13 +500,13 @@ MapItemListRenderer::Draw(Canvas &canvas, const PixelRect rc,
   StaticString<256> info_string;
   if (record && !StringIsEmpty(record->plane_type))
     info_string = record->plane_type;
-  else if (traffic != NULL)
+  else if (traffic != nullptr)
     info_string = FlarmTraffic::GetTypeString(traffic->type);
   else
     info_string = _("Unknown");
 
   // Generate the line of info about the target, if it's available
-  if (traffic != NULL) {
+  if (traffic != nullptr) {
     if (traffic->altitude_available) {
       TCHAR tmp[15];
       FormatUserAltitude(traffic->altitude, tmp, 15);
@@ -523,7 +526,7 @@ MapItemListRenderer::Draw(Canvas &canvas, const PixelRect rc,
   const RasterPoint pt(rc.left + line_height / 2, rc.top + line_height / 2);
 
   // Render the representation of the traffic icon
-  if (traffic != NULL)
+  if (traffic != nullptr)
     TrafficRenderer::Draw(canvas, traffic_look, *traffic, traffic->track,
                           item.color, pt);
 }

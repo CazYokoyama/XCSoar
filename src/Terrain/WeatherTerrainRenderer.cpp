@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ Copyright_License {
 #include "Terrain/WeatherTerrainRenderer.hpp"
 #include "Terrain/RasterWeatherCache.hpp"
 #include "Screen/Ramp.hpp"
-#include "Util/StringUtil.hpp"
+#include "Util/StringAPI.hpp"
 
 static constexpr ColorRamp weather_colors[6][NUM_COLOR_RAMP_LEVELS] = {
   { // Blue to red       // vertical speed

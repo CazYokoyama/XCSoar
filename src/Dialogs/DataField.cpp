@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ Copyright_License {
 */
 
 #include "DataField.hpp"
+#include "FilePicker.hpp"
 #include "Form/DataField/GeoPoint.hpp"
 #include "Form/DataField/RoughTime.hpp"
 #include "Form/DataField/Prefix.hpp"
@@ -35,14 +36,15 @@ bool
 EditDataFieldDialog(const TCHAR *caption, DataField &df,
                     const TCHAR *help_text)
 {
-  if (df.supports_combolist) {
-    ComboPicker(caption, df, help_text);
-    return true;
+  if (df.GetType() == DataField::Type::FILE) {
+    return FilePicker(caption, (FileDataField &)df, help_text);
+  } else if (df.supports_combolist) {
+    return ComboPicker(caption, df, help_text);
   } else if (df.GetType() == DataField::Type::ROUGH_TIME) {
     RoughTimeDataField &tdf = (RoughTimeDataField &)df;
     RoughTime value = tdf.GetValue();
     if (!TimeEntryDialog(caption, value, tdf.GetTimeZone(), true))
-      return true;
+      return false;
 
     tdf.ModifyValue(value);
     return true;
@@ -52,7 +54,7 @@ EditDataFieldDialog(const TCHAR *caption, DataField &df,
     if (!GeoPointEntryDialog(caption, value,
                              gdf.GetFormat(),
                              false))
-      return true;
+      return false;
 
     gdf.ModifyValue(value);
     return true;
@@ -68,7 +70,7 @@ EditDataFieldDialog(const TCHAR *caption, DataField &df,
       acf = ((PrefixDataField &)df).GetAllowedCharactersFunction();
 
     if (!TextEntryDialog(buffer, caption, acf))
-      return true;
+      return false;
 
     df.SetAsString(buffer);
     return true;

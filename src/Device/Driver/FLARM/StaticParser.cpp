@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -28,13 +28,14 @@ Copyright_License {
 #include "FLARM/Status.hpp"
 #include "FLARM/List.hpp"
 #include "Util/Macros.hpp"
+#include "Util/StringAPI.hpp"
 
 void
 ParsePFLAE(NMEAInputLine &line, FlarmError &error, fixed clock)
 {
   char type[2];
   line.Read(type, ARRAY_SIZE(type));
-  if (strcmp(type, "A") != 0)
+  if (!StringIsEqual(type, "A"))
     return;
 
   error.severity = (FlarmError::Severity)
@@ -49,7 +50,7 @@ ParsePFLAV(NMEAInputLine &line, FlarmVersion &version, fixed clock)
 {
   char type[2];
   line.Read(type, ARRAY_SIZE(type));
-  if (strcmp(type, "A") != 0)
+  if (!StringIsEqual(type, "A"))
     return;
 
   line.Read(version.hardware_version.buffer(),

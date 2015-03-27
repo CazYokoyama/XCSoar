@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@ Copyright_License {
 #include "MenuBar.hpp"
 #include "MenuData.hpp"
 #include "Language/Language.hpp"
+#include "Util/StringAPI.hpp"
 #include "Util/StringUtil.hpp"
 #include "Util/CharUtil.hpp"
 #include "Util/Macros.hpp"
@@ -49,7 +50,7 @@ void
 ButtonLabel::Destroy()
 {
   delete bar;
-  bar = NULL;
+  bar = nullptr;
 }
 
 /**
@@ -59,12 +60,10 @@ gcc_pure
 static bool
 LacksAlphaASCII(const TCHAR *s)
 {
-  while (*s) {
+  for (; *s != 0; ++s)
     if (IsAlphaASCII(*s))
       return false;
 
-    s++;
-  }
   return true;
 }
 
@@ -74,15 +73,16 @@ ButtonLabel::Expand(const TCHAR *text, TCHAR *buffer, size_t size)
   Expanded expanded;
   const TCHAR *dollar;
 
-  if ((text == NULL) || (*text == _T('\0')) || (*text == _T(' '))) {
+  if ((text == nullptr) || (*text == _T('\0')) || (*text == _T(' '))) {
     expanded.visible = false;
     return expanded;
-  } else if ((dollar = _tcschr(text, '$')) == NULL) {
+  } else if ((dollar = StringFind(text, '$')) == nullptr) {
     /* no macro, we can just translate the text */
     expanded.visible = true;
     expanded.enabled = true;
     const TCHAR *nl;
-    if (((nl = _tcschr(text, '\n')) != NULL) && LacksAlphaASCII(nl + 1)) {
+    if (((nl = StringFind(text, '\n')) != nullptr) &&
+        LacksAlphaASCII(nl + 1)) {
       /* Quick hack for skipping the translation for second line of a two line
          label with only digits and punctuation in the second line, e.g.
          for menu labels like "Config\n2/3" */
@@ -108,8 +108,7 @@ ButtonLabel::Expand(const TCHAR *text, TCHAR *buffer, size_t size)
     /* backtrack until the first non-whitespace character, because we
        don't want to translate whitespace between the text and the
        macro */
-    while (macros > text && IsWhitespaceOrNull(macros[-1]))
-      --macros;
+    macros = StripRight(text, macros);
 
     TCHAR s[100];
     expanded.enabled = !ExpandMacros(text, s, ARRAY_SIZE(s));
@@ -152,7 +151,7 @@ void
 ButtonLabel::Set(const Menu &menu, const Menu *overlay, bool full)
 {
   for (unsigned i = 0; i < menu.MAX_ITEMS; ++i) {
-    const MenuItem &item = overlay != NULL && (*overlay)[i].IsDefined()
+    const MenuItem &item = overlay != nullptr && (*overlay)[i].IsDefined()
       ? (*overlay)[i]
       : menu[i];
 
@@ -170,6 +169,6 @@ ButtonLabel::IsEnabled(unsigned i)
 void
 ButtonLabel::OnResize(const PixelRect &rc)
 {
-  if (bar != NULL)
+  if (bar != nullptr)
     bar->OnResize(rc);
 }

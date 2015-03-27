@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -32,15 +32,18 @@ Copyright_License {
 #include "OS/FileUtil.hpp"
 #include "IO/ZipSource.hpp"
 #include "IO/TextFile.hpp"
+#include "IO/LineReader.hpp"
 #include "Util/StringUtil.hpp"
+
+#include <string.h>
 
 bool
 WaypointReader::Parse(Waypoints &way_points, OperationEnvironment &operation)
 {
-  if (reader == NULL)
+  if (reader == nullptr)
     return false;
 
-  TLineReader *line_reader = OpenTextFile(path, ConvertLineReader::AUTO);
+  TLineReader *line_reader = OpenTextFile(path, Charset::AUTO);
   if (line_reader == nullptr)
     return false;
 
@@ -52,7 +55,7 @@ WaypointReader::Parse(Waypoints &way_points, OperationEnvironment &operation)
 void
 WaypointReader::SetTerrain(const RasterTerrain* _terrain)
 {
-  if (reader != NULL)
+  if (reader != nullptr)
     reader->SetTerrain(_terrain);
 }
 
@@ -60,9 +63,9 @@ void
 WaypointReader::Open(const TCHAR* filename, int the_filenum)
 {
   delete reader;
-  reader = NULL;
+  reader = nullptr;
 
-  // If filename is empty -> clear and return NULL pointer
+  // If filename is empty -> clear and return
   if (StringIsEmpty(filename))
     return;
 
@@ -75,7 +78,7 @@ WaypointReader::Open(const TCHAR* filename, int the_filenum)
     // Test if file exists in zip archive
     ZipSource zip(filename);
     if (zip.error())
-      // If the file doesn't exist return NULL pointer
+      // If the file doesn't exist return
       return;
   }
 

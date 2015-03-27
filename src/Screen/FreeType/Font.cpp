@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -329,7 +329,7 @@ RenderGlyph(uint8_t *buffer, unsigned buffer_width, unsigned buffer_height,
   for (const uint8_t *end = src + height * pitch;
        src != end; src += pitch, buffer += buffer_width)
     // TODO: mix with previous character?
-    std::copy(src, src + width, buffer);
+    std::copy_n(src, width, buffer);
 }
 
 static void

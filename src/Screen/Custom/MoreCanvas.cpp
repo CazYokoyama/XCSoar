@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ Copyright_License {
 
 #include "Screen/Canvas.hpp"
 #include "Asset.hpp"
+#include "Util/StringAPI.hpp"
 
 #ifndef NDEBUG
 #include "Util/UTF8.hpp"
@@ -128,7 +129,7 @@ Canvas::DrawFormattedText(PixelRect *rc, const TCHAR *text, unsigned format)
 
       // remove words from behind till line fits or no more space is found
       while (sz.cx > rc->right - rc->left &&
-             (p = _tcsrchr(duplicated + i, _T(' '))) != nullptr) {
+             (p = StringFindLast(duplicated + i, _T(' '))) != nullptr) {
         if (prev_p)
           *prev_p = _T(' ');
         *p = _T('\0');
@@ -185,8 +186,7 @@ Canvas::DrawText(int x, int y,
   assert(_text != nullptr);
 
   TCHAR copy[length + 1];
-  std::copy(_text, _text + length, copy);
-  copy[length] = _T('\0');
+  *std::copy_n(_text, length, copy) = _T('\0');
 
 #ifndef UNICODE
   assert(ValidateUTF8(copy));

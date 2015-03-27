@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ Copyright_License {
 #include "Input/InputQueue.hpp"
 #include "Input/InputEvents.hpp"
 #include "Device/device.hpp"
-#include "Device/All.hpp"
+#include "Device/MultipleDevices.hpp"
 #include "Screen/Blank.hpp"
 #include "UtilsSystem.hpp"
 #include "Blackboard/DeviceBlackboard.hpp"
@@ -246,6 +246,9 @@ CommonProcessTimer()
 static void
 ConnectionProcessTimer()
 {
+  if (devices == nullptr)
+    return;
+
   static bool connected_last = false;
   static bool location_last = false;
   static bool wait_connect = false;
@@ -275,7 +278,7 @@ ConnectionProcessTimer()
   /* this OperationEnvironment instance must be persistent, because
      DeviceDescriptor::Open() is asynchronous */
   static QuietOperationEnvironment env;
-  AllDevicesAutoReopen(env);
+  devices->AutoReopen(env);
 }
 
 void
@@ -285,7 +288,8 @@ ProcessTimer()
 
   if (!is_simulator()) {
     // now check GPS status
-    devTick();
+    if (devices != nullptr)
+      devices->Tick();
 
     // also service replay logger
     if (replay && replay->IsActive()) {

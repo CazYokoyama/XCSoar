@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -111,7 +111,7 @@ RouteConfigPanel::Prepare(ContainerWindow &parent, const PixelRect &rc)
     { 0 }
   };
 
-  AddEnum(_("Route mode"), NULL, route_mode_list,
+  AddEnum(_("Route mode"), nullptr, route_mode_list,
           (unsigned)route_planner.mode, this);
 
   AddBoolean(_("Route climb"),
@@ -167,7 +167,7 @@ RouteConfigPanel::Prepare(ContainerWindow &parent, const PixelRect &rc)
     { 0 }
   };
 
-  AddEnum(_("Reach display"), NULL, final_glide_terrain_list,
+  AddEnum(_("Reach display"), nullptr, final_glide_terrain_list,
           (unsigned)settings_computer.features.final_glide_terrain);
 
   ShowRouteControls(route_planner.mode != RoutePlannerConfig::Mode::NONE);

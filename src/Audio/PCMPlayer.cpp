@@ -353,7 +353,7 @@ PCMPlayer::Start(PCMSynthesiser &_synthesiser, unsigned _sample_rate)
   spec.callback = ::Synthesise;
   spec.userdata = this;
 
-  if (SDL_OpenAudio(&spec, nullptr) < 0 )
+  if (SDL_OpenAudio(&spec, nullptr) < 0)
     return false;
 
   synthesiser = &_synthesiser;

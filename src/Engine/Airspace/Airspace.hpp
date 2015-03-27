@@ -1,7 +1,7 @@
 /* Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -97,7 +97,7 @@ public:
    * @return true if aircraft is inside airspace
    */
   gcc_pure
-    bool IsInside(const AircraftState &loc) const;
+  bool IsInside(const AircraftState &loc) const;
 
   /**
    * Checks whether a point is inside the airspace lateral boundary.
@@ -107,7 +107,7 @@ public:
    * @return true if location is inside airspace
    */
   gcc_pure
-    bool IsInside(const GeoPoint &loc) const;
+  bool IsInside(const GeoPoint &loc) const;
 
   /**
    * Checks whether a flat-earth ray intersects with the airspace
@@ -118,7 +118,7 @@ public:
    * @return true if ray intersects or wholly enclosed by airspace
    */
   gcc_pure
-    bool Intersects(const FlatRay &ray) const;
+  bool Intersects(const FlatRay &ray) const;
 
   /**
    * Checks whether a line intersects with the airspace, by directing
@@ -130,9 +130,9 @@ public:
    * @return true if the line intersects the airspace
    */
   gcc_pure
-    AirspaceIntersectionVector Intersects(const GeoPoint &g1,
-                                          const GeoPoint &end,
-                                          const FlatProjection &projection) const;
+  AirspaceIntersectionVector Intersects(const GeoPoint &g1,
+                                        const GeoPoint &end,
+                                        const FlatProjection &projection) const;
 
   /**
    * Destroys concrete airspace enclosed by this instance if present.
@@ -162,6 +162,7 @@ public:
   /**
    * Is it necessary to call SetGroundLevel() for this AbstractAirspace?
    */
+  gcc_pure
   bool NeedGroundLevel() const;
 
   /**

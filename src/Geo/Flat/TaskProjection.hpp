@@ -1,7 +1,7 @@
 /* Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 
 #include "FlatProjection.hpp"
 #include "Geo/GeoPoint.hpp"
+#include "Geo/GeoBounds.hpp"
 #include "Compiler.h"
 
 /**
@@ -35,12 +36,17 @@
  * Needs to be initialized with reset() before first use.
  */
 class TaskProjection : public FlatProjection {
-  /** Lower left corner found in scan */
-  GeoPoint location_min;
-  /** Upper right corner found in scan */
-  GeoPoint location_max;
+  GeoBounds bounds;
 
 public:
+#ifndef NDEBUG
+  TaskProjection():bounds(GeoBounds::Invalid()) {}
+#else
+  TaskProjection() = default;
+#endif
+
+  explicit TaskProjection(const GeoBounds &bounds);
+
   /**
    * Reset search bounds
    *
@@ -54,7 +60,9 @@ public:
    *
    * @param ref Point to check against bounds
    */
-  void Scan(const GeoPoint &ref);
+  void Scan(const GeoPoint &ref) {
+    bounds.Extend(ref);
+  }
 
   /**
    * Update projection.

@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@ Copyright_License {
 #include "TaskLook.hpp"
 #include "MarkerLook.hpp"
 #include "TrailLook.hpp"
+#include "WaveLook.hpp"
 #include "WindArrowLook.hpp"
 #include "Screen/Icon.hpp"
 #include "Screen/Bitmap.hpp"
@@ -51,6 +52,7 @@ struct MapLook {
   TaskLook task;
   MarkerLook marker;
   TrailLook trail;
+  WaveLook wave;
   WindArrowLook wind;
 
 #ifdef HAVE_NOAA

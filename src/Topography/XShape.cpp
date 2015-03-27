@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ Copyright_License {
 
 #include "Topography/XShape.hpp"
 #include "Convert.hpp"
+#include "Util/StringAPI.hpp"
 #include "Util/UTF8.hpp"
 #ifdef ENABLE_OPENGL
 #include "Projection/Projection.hpp"
@@ -46,10 +47,10 @@ import_label(const char *src)
   if (src == nullptr)
     return nullptr;
 
-  src = TrimLeft(src);
-  if (strcmp(src, "RAILWAY STATION") == 0 ||
-      strcmp(src, "RAILROAD STATION") == 0 ||
-      strcmp(src, "UNK") == 0)
+  src = StripLeft(src);
+  if (StringIsEqual(src, "RAILWAY STATION") ||
+      StringIsEqual(src, "RAILROAD STATION") ||
+      StringIsEqual(src, "UNK"))
     return nullptr;
 
 #ifdef _UNICODE

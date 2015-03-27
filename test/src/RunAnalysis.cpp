@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ Copyright_License {
 */
 
 #define ENABLE_LOOK
-#define ENABLE_XML_DIALOG
+#define ENABLE_DIALOG
 #define ENABLE_CMDLINE
 #define ENABLE_PROFILE
 #define USAGE "DRIVER FILE"
@@ -34,7 +34,6 @@ Copyright_License {
 #include "Logger/Logger.hpp"
 #include "Terrain/RasterTerrain.hpp"
 #include "Waypoint/WaypointGlue.hpp"
-#include "Dialogs/XML.hpp"
 #include "Dialogs/dlgAnalysis.hpp"
 #include "Dialogs/Task/TaskDialogs.hpp"
 #include "Dialogs/Dialogs.h"
@@ -195,7 +194,6 @@ Main()
                      {640, 480});
 
   dlgAnalysisShowModal(main_window, *look, blackboard, glide_computer,
-                       &protected_task_manager,
                        &airspace_database,
                        terrain);
 

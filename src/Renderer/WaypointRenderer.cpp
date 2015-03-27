@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -137,10 +137,6 @@ class WaypointVisitorMap:
   const WaypointLook &look;
   const TaskBehaviour &task_behaviour;
   const MoreData &basic;
-  /**
-   * is the ordered task a MAT
-   */
-  bool is_mat;
 
   TCHAR sAltUnit[4];
   bool task_valid;
@@ -166,18 +162,10 @@ public:
     :projection(_projection),
      settings(_settings), look(_look), task_behaviour(_task_behaviour),
      basic(_basic),
-     is_mat(false),
      task_valid(false),
      labels(projection.GetScreenWidth(), projection.GetScreenHeight())
   {
     _tcscpy(sAltUnit, Units::GetAltitudeName());
-  }
-
-  /**
-   * Indicate the ordered task is a MAT
-   */
-  void SetIsMat(bool v) {
-    is_mat = v;
   }
 
 protected:
@@ -210,7 +198,7 @@ protected:
       _tcscpy(Buffer, way_point.name.c_str());
       TCHAR *tmp;
       tmp = _tcsstr(Buffer, _T(" "));
-      if (tmp != NULL)
+      if (tmp != nullptr)
         tmp[0] = '\0';
       break;
 
@@ -249,7 +237,7 @@ protected:
       size_t length = _tcslen(buffer);
       if (length > 0)
         buffer[length++] = _T(':');
-      _stprintf(buffer + length, _T("%.1f"), (double) gr);
+      StringFormatUnsafe(buffer + length, _T("%.1f"), (double) gr);
       return;
     }
 
@@ -267,7 +255,7 @@ protected:
       if (reach.IsReachableTerrain()) {
         if (length > 0)
           buffer[length++] = _T(':');
-        _stprintf(buffer + length, _T("%d%s"), uah_terrain, sAltUnit);
+        StringFormatUnsafe(buffer + length, _T("%d%s"), uah_terrain, sAltUnit);
       }
       return;
     }
@@ -278,12 +266,12 @@ protected:
     if (settings.arrival_height_display == WaypointRendererSettings::ArrivalHeightDisplay::GLIDE_AND_TERRAIN &&
         reach.IsReachableDirect() && reach.IsReachableTerrain() &&
         reach.IsDeltaConsiderable()) {
-      _stprintf(buffer + length, _T("%d/%d%s"), uah_glide,
-                uah_terrain, sAltUnit);
+      StringFormatUnsafe(buffer + length, _T("%d/%d%s"), uah_glide,
+                         uah_terrain, sAltUnit);
       return;
     }
 
-    _stprintf(buffer + length, _T("%d%s"), uah_glide, sAltUnit);
+    StringFormatUnsafe(buffer + length, _T("%d%s"), uah_glide, sAltUnit);
   }
 
   void
@@ -368,13 +356,11 @@ protected:
   }
 
 public:
-  void
-  Visit(const Waypoint& way_point)
-  {
-    AddWaypoint(way_point, way_point.IsTurnpoint() && is_mat);
+  void Visit(const Waypoint& way_point) override {
+    AddWaypoint(way_point, false);
   }
 
-  virtual void Visit(const TaskPoint &tp) override {
+  void Visit(const TaskPoint &tp) override {
     switch (tp.GetType()) {
     case TaskPointType::UNORDERED:
       AddWaypoint(((const UnorderedTaskPoint &)tp).GetWaypoint(), true);
@@ -397,8 +383,7 @@ public:
   void CalculateRoute(const ProtectedRoutePlanner &route_planner) {
     const ProtectedRoutePlanner::Lease lease(route_planner);
 
-    for (auto it = waypoints.begin(), end = waypoints.end(); it != end; ++it) {
-      VisibleWaypoint &vwp = *it;
+    for (VisibleWaypoint &vwp : waypoints) {
       const Waypoint &way_point = *vwp.waypoint;
 
       if (way_point.IsLandable() || way_point.flags.watched)
@@ -418,8 +403,7 @@ public:
       : calculated.glide_polar_safety;
     const MacCready mac_cready(task_behaviour.glide, glide_polar);
 
-    for (auto it = waypoints.begin(), end = waypoints.end(); it != end; ++it) {
-      VisibleWaypoint &vwp = *it;
+    for (VisibleWaypoint &vwp : waypoints) {
       const Waypoint &way_point = *vwp.waypoint;
 
       if (way_point.IsLandable() || way_point.flags.watched)
@@ -432,15 +416,15 @@ public:
                  const PolarSettings &polar_settings,
                  const TaskBehaviour &task_behaviour,
                  const DerivedInfo &calculated) {
-    if (route_planner != NULL && !route_planner->IsReachEmpty())
+    if (route_planner != nullptr && !route_planner->IsReachEmpty())
       CalculateRoute(*route_planner);
     else
       CalculateDirect(polar_settings, task_behaviour, calculated);
   }
 
   void Draw(Canvas &canvas) {
-    for (auto it = waypoints.begin(), end = waypoints.end(); it != end; ++it)
-      DrawWaypoint(canvas, *it);
+    for (const VisibleWaypoint &vwp : waypoints)
+      DrawWaypoint(canvas, vwp);
   }
 };
 
@@ -470,17 +454,15 @@ WaypointRenderer::render(Canvas &canvas, LabelBlock &label_block,
                          const ProtectedTaskManager *task,
                          const ProtectedRoutePlanner *route_planner)
 {
-  if ((way_points == NULL) || way_points->IsEmpty())
+  if (way_points == nullptr || way_points->IsEmpty())
     return;
 
   WaypointVisitorMap v(projection, settings, look, task_behaviour, basic);
 
-  if (task != NULL) {
+  if (task != nullptr) {
     ProtectedTaskManager::Lease task_manager(*task);
 
     const TaskStats &task_stats = task_manager->GetStats();
-
-    v.SetIsMat(task_stats.is_mat);
 
     // task items come first, this is the only way we know that an item is in task,
     // and we won't add it if it is already there
@@ -488,7 +470,7 @@ WaypointRenderer::render(Canvas &canvas, LabelBlock &label_block,
       v.set_task_valid();
 
     const AbstractTask *atask = task_manager->GetActiveTask();
-    if (atask != NULL)
+    if (atask != nullptr)
       atask->AcceptTaskPointVisitor(v);
   }
 

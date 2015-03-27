@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -38,6 +38,7 @@ namespace Profile {
   static void Load(PlacesOfInterestSettings &settings);
   static void Load(FeaturesSettings &settings);
   static void Load(CirclingSettings &settings);
+  static void Load(WaveSettings &settings);
 };
 
 void
@@ -127,6 +128,12 @@ Profile::Load(CirclingSettings &settings)
       settings.external_trigger_cruise_enabled);
 }
 
+void
+Profile::Load(WaveSettings &settings)
+{
+  Get(ProfileKeys::WaveAssistant, settings.enabled);
+}
+
 static bool
 LoadUTCOffset(RoughTimeDelta &value_r)
 {
@@ -162,6 +169,7 @@ Profile::Load(ComputerSettings &settings)
   Load(settings.features);
   Load(settings.airspace);
   Load(settings.circling);
+  Load(settings.wave);
 
   GetEnum(ProfileKeys::AverEffTime, settings.average_eff_time);
 

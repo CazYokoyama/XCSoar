@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -128,7 +128,7 @@ bool
 WaypointReaderOzi::VerifyFormat(TLineReader &reader)
 {
   const TCHAR *line = reader.ReadLine();
-  if (line == NULL)
+  if (line == nullptr)
     return false;
 
   return StringStartsWith(line, _T("OziExplorer Waypoint File"));

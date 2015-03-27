@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -24,9 +24,9 @@ Copyright_License {
 #include "Units/UnitsGlue.hpp"
 #include "Units/UnitsStore.hpp"
 #include "LogFile.hpp"
+#include "Util/StringAPI.hpp"
 
 #include <tchar.h>
-#include <string.h>
 
 #ifndef HAVE_POSIX
 #include <windows.h>
@@ -95,7 +95,7 @@ FindLanguage(const TCHAR* lang)
 {
   // Search for supported languages matching the language code
   for (unsigned i = 0; language_table[i].region_code != nullptr; ++i)
-    if (_tcscmp(language_table[i].region_code, lang) == 0)
+    if (StringIsEqual(language_table[i].region_code, lang))
       return language_table[i].store_index;
 
   return 0;

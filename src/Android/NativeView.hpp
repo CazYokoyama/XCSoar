@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -27,7 +27,10 @@ Copyright_License {
 #include "Java/Object.hpp"
 #include "Java/Class.hpp"
 #include "Java/String.hpp"
+
+#ifndef NO_SCREEN
 #include "Screen/Point.hpp"
+#endif
 
 #include <assert.h>
 
@@ -92,9 +95,11 @@ public:
   unsigned GetWidth() const { return width; }
   unsigned GetHeight() const { return height; }
 
+#ifndef NO_SCREEN
   PixelSize GetSize() const {
     return { width, height };
   }
+#endif
 
   unsigned GetXDPI() const {
     return xdpi;

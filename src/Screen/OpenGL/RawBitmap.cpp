@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -119,7 +119,7 @@ RawBitmap::StretchTo(unsigned width, unsigned height,
 #ifdef USE_GLSL
   OpenGL::texture_shader->Use();
 #else
-  const GLEnable scope(GL_TEXTURE_2D);
+  const GLEnable<GL_TEXTURE_2D> scope;
   OpenGL::glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 #endif
 

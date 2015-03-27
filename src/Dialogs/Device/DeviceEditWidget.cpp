@@ -2,7 +2,7 @@
   Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -33,6 +33,7 @@
 #include "Form/DataField/String.hpp"
 #include "Device/Register.hpp"
 #include "Device/Driver.hpp"
+#include "Device/Features.hpp"
 #include "Blackboard/DeviceBlackboard.hpp"
 #include "Interface.hpp"
 
@@ -67,7 +68,7 @@ static constexpr struct {
 #ifdef _WIN32_WCE
   { DeviceConfig::PortType::AUTO, N_("GPS Intermediate Driver") },
 #endif
-#if defined(ANDROID) || defined(__APPLE__)
+#ifdef HAVE_INTERNAL_GPS
   { DeviceConfig::PortType::INTERNAL, N_("Built-in GPS & sensors") },
 #endif
 #ifdef ANDROID
@@ -315,6 +316,7 @@ FillTCPPorts(DataFieldEnum &dfe)
   dfe.addEnumText(_T("4353"), 4353);
   dfe.addEnumText(_T("10110"), 10110);
   dfe.addEnumText(_T("4352"), 4352);
+  dfe.addEnumText(_T("2000"), 2000);
 }
 
 static void
@@ -680,7 +682,7 @@ FinishPortField(DeviceConfig &config, const DataFieldEnum &df)
   case DeviceConfig::PortType::PTY:
     /* Serial Port */
     if (new_type == config.port_type &&
-        _tcscmp(config.path, df.GetAsString()) == 0)
+        StringIsEqual(config.path, df.GetAsString()))
       return false;
 
     config.port_type = new_type;
@@ -690,7 +692,7 @@ FinishPortField(DeviceConfig &config, const DataFieldEnum &df)
   case DeviceConfig::PortType::RFCOMM:
     /* Bluetooth */
     if (new_type == config.port_type &&
-        _tcscmp(config.bluetooth_mac, df.GetAsString()) == 0)
+        StringIsEqual(config.bluetooth_mac, df.GetAsString()))
       return false;
 
     config.port_type = new_type;

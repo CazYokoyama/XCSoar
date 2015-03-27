@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -27,6 +27,14 @@ Copyright_License {
 #include "Look/DialogLook.hpp"
 
 #include <winuser.h>
+
+WndFrame::WndFrame(const DialogLook &_look)
+  :look(_look),
+   caption_color(look.text_color),
+   mCaptionStyle(DT_LEFT | DT_NOCLIP | DT_WORDBREAK)
+{
+  text.clear();
+}
 
 WndFrame::WndFrame(ContainerWindow &parent, const DialogLook &_look,
                    PixelRect rc,

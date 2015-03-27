@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -44,7 +44,8 @@ class K6BtPort : public Port {
   unsigned baud_rate;
 
 public:
-  K6BtPort(Port *port, unsigned baud_rate, DataHandler &handler);
+  K6BtPort(Port *port, unsigned baud_rate,
+           PortListener *listener, DataHandler &handler);
 
   virtual ~K6BtPort();
 
@@ -54,17 +55,17 @@ protected:
 
 public:
   /* virtual methods from Port */
-  virtual PortState GetState() const override;
-  virtual bool WaitConnected(OperationEnvironment &env);
-  virtual size_t Write(const void *data, size_t length) override;
-  virtual bool Drain() override;
-  virtual void Flush() override;
-  virtual bool SetBaudrate(unsigned baud_rate) override;
-  virtual unsigned GetBaudrate() const override;
-  virtual bool StopRxThread() override;
-  virtual bool StartRxThread() override;
-  virtual int Read(void *Buffer, size_t Size) override;
-  virtual WaitResult WaitRead(unsigned timeout_ms) override;
+  PortState GetState() const override;
+  bool WaitConnected(OperationEnvironment &env) override;
+  size_t Write(const void *data, size_t length) override;
+  bool Drain() override;
+  void Flush() override;
+  bool SetBaudrate(unsigned baud_rate) override;
+  unsigned GetBaudrate() const override;
+  bool StopRxThread() override;
+  bool StartRxThread() override;
+  int Read(void *Buffer, size_t Size) override;
+  WaitResult WaitRead(unsigned timeout_ms) override;
 };
 
 #endif

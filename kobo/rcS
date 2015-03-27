@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 #  XCSoar Glide Computer - http://www.xcsoar.org/
-#  Copyright (C) 2000-2014 The XCSoar Project
+#  Copyright (C) 2000-2015 The XCSoar Project
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -54,6 +54,10 @@ if [ -f /mnt/onboard/.kobo/Kobo.tgz -o -f /mnt/onboard/.kobo/KoboRoot.tgz \
     fi
 
     rm -f /mnt/onboard/XCSoarData/kobo/start_nickel
+    # launch user script before nickel start
+    if [ -f /mnt/onboard/XCSoarData/kobo/init_nickel.sh ]; then
+        source /mnt/onboard/XCSoarData/kobo/init_nickel.sh
+    fi
     umount -l /mnt/onboard
     exec /etc/init.d/rcS
 fi

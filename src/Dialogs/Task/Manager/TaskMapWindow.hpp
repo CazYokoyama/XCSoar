@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -52,10 +52,10 @@ public:
   }
 
   /* virtual methods from class Window */
-  virtual bool OnMouseDown(PixelScalar x, PixelScalar y) override;
+  bool OnMouseDown(PixelScalar x, PixelScalar y) override;
 
   /* virtual methods from class BufferWindow */
-  virtual void OnPaintBuffer(Canvas &canvas) override;
+  void OnPaintBuffer(Canvas &canvas) override;
 };
 
 #endif /* DLGTASKMANAGER_HPP */

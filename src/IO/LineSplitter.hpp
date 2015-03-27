@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ protected:
 
 public:
   LineSplitter(Source<char> &_source)
-    :source(_source), remaining((char *)NULL, 0) {}
+    :source(_source), remaining((char *)nullptr, 0) {}
 
   /**
    * Discards the buffer that holds the data after the last line.

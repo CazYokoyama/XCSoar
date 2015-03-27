@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -85,7 +85,7 @@ private:
   }
 
 protected:
-  virtual bool OnCommand(unsigned id, unsigned code) override {
+  bool OnCommand(unsigned id, unsigned code) override {
     switch (id) {
     case CLOSE:
       Close();
@@ -95,7 +95,7 @@ protected:
     return SingleWindow::OnCommand(id, code);
   }
 
-  virtual void OnResize(PixelSize size) override {
+  void OnResize(PixelSize size) override {
     SingleWindow::OnResize(size);
 
     const PixelRect rc = GetClientRect();
@@ -106,12 +106,12 @@ protected:
       close_button.Move(GetButtonRect(rc));
   }
 
-  virtual bool OnKeyUp(unsigned key_code) {
+  bool OnKeyUp(unsigned key_code) override {
     Close();
     return true;
   }
 
-  virtual bool OnMouseUp(PixelScalar x, PixelScalar y) {
+  bool OnMouseUp(PixelScalar x, PixelScalar y) override {
     Close();
     return true;
   }

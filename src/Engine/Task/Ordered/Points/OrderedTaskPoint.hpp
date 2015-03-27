@@ -2,7 +2,7 @@
   Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -34,7 +34,7 @@
 struct TaskBehaviour;
 struct OrderedTaskSettings;
 class FlatProjection;
-class TaskProjection;
+class GeoBounds;
 
 /**
  * Abstract compound specialisation of TaskLeg and ScoredTaskPoint,
@@ -215,11 +215,12 @@ public:
   virtual bool Equals(const OrderedTaskPoint &other) const;
 
   /**
-   * Update a TaskProjection to include this taskpoint and observation zone.
+   * Update a GeoBounds to include this taskpoint and observation
+   * zone.
    *
-   * @param task_projection Projection to update
+   * @param bounds GeoBounds to update
    */
-  void ScanProjection(TaskProjection &task_projection) const;
+  void ScanBounds(GeoBounds &bounds) const;
 
   void UpdateOZ(const FlatProjection &projection);
 

@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -85,7 +85,7 @@ dlgInfoBoxAccessShowModeless(const int id, const InfoBoxPanel *panels)
       if (widget == NULL)
         continue;
 
-      if (!found_setup && _tcscmp(panels->name, _T("Setup")) == 0) {
+      if (!found_setup && StringIsEqual(panels->name, _T("Setup"))) {
         /* add a "Switch InfoBox" button to the "Setup" tab -
            kludge! */
         found_setup = true;

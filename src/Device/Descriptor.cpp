@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -21,13 +21,13 @@ Copyright_License {
 }
 */
 
-#include "Device/Descriptor.hpp"
-#include "Device/Driver.hpp"
-#include "Device/Parser.hpp"
+#include "Descriptor.hpp"
+#include "Driver.hpp"
+#include "Parser.hpp"
+#include "Util/NMEAWriter.hpp"
+#include "Register.hpp"
 #include "Driver/FLARM/Device.hpp"
 #include "Driver/LX/Internal.hpp"
-#include "Device/Util/NMEAWriter.hpp"
-#include "Device/Register.hpp"
 #include "Blackboard/DeviceBlackboard.hpp"
 #include "Components.hpp"
 #include "Port/ConfiguredPort.hpp"
@@ -35,6 +35,7 @@ Copyright_License {
 #include "NMEA/Info.hpp"
 #include "Thread/Mutex.hpp"
 #include "Util/StringUtil.hpp"
+#include "Util/StringAPI.hpp"
 #include "Logger/NMEALogger.hpp"
 #include "Language/Language.hpp"
 #include "Operation/Operation.hpp"
@@ -96,12 +97,14 @@ public:
   };
 };
 
-DeviceDescriptor::DeviceDescriptor(unsigned _index)
+DeviceDescriptor::DeviceDescriptor(unsigned _index,
+                                   PortListener *_port_listener)
   :index(_index),
+   port_listener(_port_listener),
    open_job(nullptr),
    port(nullptr), monitor(nullptr), dispatcher(nullptr),
    driver(nullptr), device(nullptr),
-#if defined(ANDROID) || defined(__APPLE__)
+#ifdef HAVE_INTERNAL_GPS
    internal_sensors(nullptr),
 #endif
 #ifdef ANDROID
@@ -149,7 +152,7 @@ DeviceDescriptor::GetState() const
   if (port != nullptr)
     return port->GetState();
 
-#if defined(ANDROID) || defined(__APPLE__)
+#ifdef HAVE_INTERNAL_GPS
   if (internal_sensors != nullptr)
     return PortState::READY;
 #endif
@@ -217,7 +220,10 @@ DeviceDescriptor::CancelAsync()
 bool
 DeviceDescriptor::OpenOnPort(DumpPort *_port, OperationEnvironment &env)
 {
+#if !CLANG_CHECK_VERSION(3,6)
+  /* disabled on clang due to -Wtautological-pointer-compare */
   assert(_port != nullptr);
+#endif
   assert(port == nullptr);
   assert(device == nullptr);
   assert(driver != nullptr);
@@ -238,7 +244,7 @@ DeviceDescriptor::OpenOnPort(DumpPort *_port, OperationEnvironment &env)
   port = _port;
 
   parser.Reset();
-  parser.SetReal(_tcscmp(driver->name, _T("Condor")) != 0);
+  parser.SetReal(!StringIsEqual(driver->name, _T("Condor")));
   if (config.IsDriver(_T("Condor")))
     parser.DisableGeoid();
 
@@ -266,7 +272,7 @@ DeviceDescriptor::OpenOnPort(DumpPort *_port, OperationEnvironment &env)
 bool
 DeviceDescriptor::OpenInternalSensors()
 {
-#if defined(ANDROID) || defined(__APPLE__)
+#ifdef HAVE_INTERNAL_GPS
   if (is_simulator())
     return true;
 
@@ -409,7 +415,7 @@ DeviceDescriptor::DoOpen(OperationEnvironment &env)
 
   reopen_clock.Update();
 
-  Port *port = OpenPort(config, *this);
+  Port *port = OpenPort(config, port_listener, *this);
   if (port == nullptr) {
     TCHAR name_buffer[64];
     const TCHAR *name = config.GetPortName(name_buffer, 64);
@@ -467,7 +473,7 @@ DeviceDescriptor::Close()
 
   CancelAsync();
 
-#if defined(ANDROID) || defined(__APPLE__)
+#ifdef HAVE_INTERNAL_GPS
   delete internal_sensors;
   internal_sensors = nullptr;
 #endif
@@ -594,7 +600,7 @@ bool
 DeviceDescriptor::IsDriver(const TCHAR *name) const
 {
   return driver != nullptr
-    ? _tcscmp(driver->name, name) == 0
+    ? StringIsEqual(driver->name, name)
     : false;
 }
 
@@ -625,7 +631,7 @@ DeviceDescriptor::IsManageable() const
     if (driver->IsManageable())
       return true;
 
-    if (_tcscmp(driver->name, _T("LX")) == 0 && device != nullptr) {
+    if (StringIsEqual(driver->name, _T("LX")) && device != nullptr) {
       const LXDevice &lx = *(const LXDevice *)device;
       return lx.IsV7() || lx.IsNano() || lx.IsLX16xx();
     }
@@ -699,7 +705,7 @@ DeviceDescriptor::ParseNMEA(const char *line, NMEAInfo &info)
 
   // Additional "if" to find GPS strings
   if (parser.ParseLine(line, info)) {
-    info.alive.Update(fixed(MonotonicClockMS()) / 1000);
+    info.alive.Update(info.clock);
     return true;
   }
 

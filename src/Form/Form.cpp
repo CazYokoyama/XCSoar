@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -47,9 +47,9 @@ Copyright_License {
 #elif defined(ENABLE_SDL)
 #include "Event/SDL/Event.hpp"
 #include "Event/SDL/Loop.hpp"
-#elif defined(USE_CONSOLE) || defined(NON_INTERACTIVE)
+#elif defined(USE_POLL_EVENT)
 #include "Event/Shared/Event.hpp"
-#include "Event/Console/Loop.hpp"
+#include "Event/Poll/Loop.hpp"
 #elif defined(USE_GDI)
 #include "Event/GDI/Event.hpp"
 #include "Event/GDI/Loop.hpp"
@@ -110,7 +110,7 @@ WndForm::WndForm(SingleWindow &main_window, const DialogLook &_look,
    modeless(false),
    dragging(false),
    client_area(_look),
-   default_focus(NULL)
+   default_focus(nullptr)
 {
   Create(main_window, rc, Caption, AddBorder(style));
 }
@@ -144,7 +144,6 @@ WndForm::~WndForm()
      our own OnDestroy() method won't be called (during object
      destruction, this object loses its identity) */
   Destroy();
-  SubForm::Clear();
 }
 
 SingleWindow &
@@ -333,7 +332,7 @@ CheckKey(ContainerWindow *container, const Event &event)
   return (r & DLGC_WANTMESSAGE) != 0;
 #else
   Window *focused = container->GetFocusedWindow();
-  if (focused == NULL)
+  if (focused == nullptr)
     return false;
 
   return focused->OnKeyCheck(event.GetKeyCode());
@@ -393,7 +392,7 @@ WndForm::ShowModal()
   main_window.Refresh();
 #endif
 
-#if defined(ANDROID) || defined(USE_CONSOLE) || defined(ENABLE_SDL) || defined(NON_INTERACTIVE)
+#if defined(ANDROID) || defined(USE_POLL_EVENT) || defined(ENABLE_SDL)
   EventLoop loop(*event_queue, main_window);
 #else
   DialogEventLoop loop(*event_queue, *this);
@@ -431,12 +430,12 @@ WndForm::ShowModal()
       if (event.GetKeyCode() == SDLK_TAB) {
         /* the Tab key moves the keyboard focus */
 #if SDL_MAJOR_VERSION >= 2
-        const Uint8 *keystate = ::SDL_GetKeyboardState(NULL);
+        const Uint8 *keystate = ::SDL_GetKeyboardState(nullptr);
         event.event.key.keysym.sym =
             keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT]
           ? SDLK_UP : SDLK_DOWN;
 #else
-        const Uint8 *keystate = ::SDL_GetKeyState(NULL);
+        const Uint8 *keystate = ::SDL_GetKeyState(nullptr);
         event.event.key.keysym.sym =
           keystate[SDLK_LSHIFT] || keystate[SDLK_RSHIFT]
           ? SDLK_UP : SDLK_DOWN;
@@ -508,7 +507,7 @@ WndForm::ShowModal()
 #else
   if (old_focus_reference.Defined()) {
     Window *old_focus = old_focus_reference.Get(*root);
-    if (old_focus != NULL)
+    if (old_focus != nullptr)
       old_focus->SetFocus();
   }
 #endif /* !USE_GDI */
@@ -635,7 +634,7 @@ WndForm::OnPaint(Canvas &canvas)
 void
 WndForm::SetCaption(const TCHAR *_caption)
 {
-  if (_caption == NULL)
+  if (_caption == nullptr)
     _caption = _T("");
 
   if (!caption.equals(_caption)) {

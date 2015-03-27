@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ Copyright_License {
 #include "Compiler.h"
 #include "Look/GlobalFonts.hpp"
 #include "Screen/Init.hpp"
-#include "Net/Init.hpp"
+#include "Net/HTTP/Init.hpp"
 #include "UtilsSystem.hpp"
 #include "ResourceLoader.hpp"
 #include "Language/Language.hpp"
@@ -146,10 +146,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (Startup())
     ret = CommonInterface::main_window->RunEventLoop();
 
-  if (CommonInterface::main_window != nullptr) {
-    CommonInterface::main_window->Destroy();
-    delete CommonInterface::main_window;
-  }
+  Shutdown();
 
   DeinitialiseIOThread();
 

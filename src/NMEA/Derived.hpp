@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -44,6 +44,7 @@ Copyright_License {
 #include "Engine/GlideSolvers/GlidePolar.hpp"
 #include "Atmosphere/Pressure.hpp"
 #include "Engine/Route/Route.hpp"
+#include "Computer/WaveResult.hpp"
 #include "Util/TypeTraits.hpp"
 
 /** Derived terrain altitude information, including glide range */
@@ -154,6 +155,8 @@ struct DerivedInfo:
   Validity pressure_available;
 
   ClimbHistory climb_history;
+
+  WaveResult wave;
 
   /** Does #estimated_wind have a meaningful value? */
   Validity estimated_wind_available;

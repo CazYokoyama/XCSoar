@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ Copyright_License {
 #include "Form/ActionListener.hpp"
 #include "Widget/ListWidget.hpp"
 #include "WPASupplicant.hpp"
-#include "OS/SocketAddress.hpp"
+#include "Net/IPv4Address.hpp"
 
 class WifiListWidget final
   : public ListWidget, ActionListener, Timer {
@@ -89,16 +89,16 @@ public:
   }
 
   /* virtual methods from class ListItemRenderer */
-  virtual void OnPaintItem(Canvas &canvas, const PixelRect rc,
-                           unsigned idx) override;
+  void OnPaintItem(Canvas &canvas, const PixelRect rc,
+                   unsigned idx) override;
 
   /* virtual methods from class ListCursorHandler */
-  virtual void OnCursorMoved(unsigned index) {
+  void OnCursorMoved(unsigned index) override {
     UpdateButtons();
   }
 
   /* virtual methods from class Timer */
-  virtual void OnTimer() {
+  void OnTimer() override {
     UpdateList();
   }
 
@@ -187,7 +187,7 @@ WifiListWidget::OnPaintItem(Canvas &canvas, const PixelRect rc,
     state = _("Connected");
 
     /* look up ip address for eth0 */
-    SocketAddress addr = SocketAddress::GetDeviceAddress("eth0");
+    const auto addr = IPv4Address::GetDeviceAddress("eth0");
     if (addr.IsDefined()) { /* valid address? */
       StaticString<40> addr_str;
       if (addr.ToString(addr_str.buffer(), addr_str.MAX_SIZE) != nullptr) {

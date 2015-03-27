@@ -1,7 +1,7 @@
 /* Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -25,40 +25,26 @@
 #include <algorithm>
 #include <cassert>
 
-void
-TaskProjection::Reset(const GeoPoint &ref)
+TaskProjection::TaskProjection(const GeoBounds &_bounds)
+  :bounds(_bounds)
 {
-  location_min = ref;
-  location_max = ref;
-  SetCenterFast(ref);
+  SetCenter(bounds.GetCenter());
 }
 
 void
-TaskProjection::Scan(const GeoPoint &ref)
+TaskProjection::Reset(const GeoPoint &ref)
 {
-  assert(IsValid());
-
-  if (!ref.IsValid())
-    return;
-
-  location_min.longitude = std::min(ref.longitude, location_min.longitude);
-  location_max.longitude = std::max(ref.longitude, location_max.longitude);
-  location_min.latitude = std::min(ref.latitude, location_min.latitude);
-  location_max.latitude = std::max(ref.latitude, location_max.latitude);
+  FlatProjection::SetInvalid();
+  bounds = GeoBounds(ref);
 }
 
 bool
 TaskProjection::Update()
 {
-  assert(IsValid());
+  assert(bounds.IsValid());
 
   GeoPoint old_center = GetCenter();
-  GeoPoint new_center;
-
-  new_center.longitude =
-    location_max.longitude.Fraction(location_min.longitude, fixed(0.5));
-  new_center.latitude =
-    location_max.latitude.Fraction(location_min.latitude, fixed(0.5));
+  GeoPoint new_center = bounds.GetCenter();
   if (new_center == old_center)
     return false;
 
@@ -69,8 +55,8 @@ TaskProjection::Update()
 fixed
 TaskProjection::ApproxRadius() const
 {
-  assert(IsValid());
+  assert(bounds.IsValid());
 
-  return std::max(GetCenter().Distance(location_max),
-                  GetCenter().Distance(location_min));
+  return std::max(GetCenter().Distance(bounds.GetSouthWest()),
+                  GetCenter().Distance(bounds.GetNorthEast()));
 }

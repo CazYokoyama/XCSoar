@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ Copyright_License {
 
 #include "Topography/TopographyStore.hpp"
 #include "Topography/TopographyFile.hpp"
+#include "Util/StringAPI.hpp"
 #include "Util/StringUtil.hpp"
 #include "Util/ConvertString.hpp"
 #include "IO/LineReader.hpp"
@@ -94,6 +95,19 @@ static constexpr LOOKUP_ICON icon_list[] = {
   { nullptr, ResourceId::Null(), ResourceId::Null() }
 };
 
+fixed
+TopographyStore::GetNextScaleThreshold(fixed map_scale) const
+{
+  fixed result(-1);
+  for (auto *file : files) {
+    fixed threshold = file->GetNextScaleThreshold(map_scale);
+    if (threshold > result)
+      result = threshold;
+  }
+
+  return result;
+}
+
 unsigned
 TopographyStore::ScanVisibility(const WindowProjection &m_projection,
                               unsigned max_update)
@@ -104,10 +118,8 @@ TopographyStore::ScanVisibility(const WindowProjection &m_projection,
   // we will make sure we update at least one cache per call
   // to make sure eventually everything gets refreshed
   unsigned num_updated = 0;
-  for (auto it = files.begin(), end = files.end(); it != end; ++it) {
-    TopographyFile &file = **it;
-
-    if (file.Update(m_projection)) {
+  for (auto *file : files) {
+    if (file->Update(m_projection)) {
       ++num_updated;
       if (num_updated >= max_update)
         break;
@@ -296,10 +308,8 @@ TopographyStore::Load(OperationEnvironment &operation, NLineReader &reader,
 void
 TopographyStore::Reset()
 {
-  for (auto it = files.begin(), end = files.end(); it != end; ++it) {
-    TopographyFile *file = *it;
+  for (auto *file : files)
     delete file;
-  }
 
   files.clear();
 }

@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -29,7 +29,8 @@ Copyright_License {
 #include <assert.h>
 
 Port *
-OpenAndroidBluetoothPort(const TCHAR *address, DataHandler &handler)
+OpenAndroidBluetoothPort(const TCHAR *address, PortListener *listener,
+                         DataHandler &handler)
 {
   assert(address != nullptr);
 
@@ -37,15 +38,15 @@ OpenAndroidBluetoothPort(const TCHAR *address, DataHandler &handler)
   if (bridge == nullptr)
     return nullptr;
 
-  return new AndroidPort(handler, bridge);
+  return new AndroidPort(listener, handler, bridge);
 }
 
 Port *
-OpenAndroidBluetoothServerPort(DataHandler &handler)
+OpenAndroidBluetoothServerPort(PortListener *listener, DataHandler &handler)
 {
   PortBridge *bridge = BluetoothHelper::createServer(Java::GetEnv());
   if (bridge == nullptr)
     return nullptr;
 
-  return new AndroidPort(handler, bridge);
+  return new AndroidPort(listener, handler, bridge);
 }

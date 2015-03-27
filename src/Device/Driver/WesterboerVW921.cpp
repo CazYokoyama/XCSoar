@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ Copyright_License {
 #include "Device/Driver/WesterboerVW921.hpp"
 #include "Device/Driver.hpp"
 #include "NMEA/Info.hpp"
-#include "Util/FifoBuffer.hpp"
+#include "Util/StaticFifoBuffer.hpp"
 #include "OS/ByteOrder.hpp"
 #include "Units/System.hpp"
 
@@ -37,7 +37,7 @@ Copyright_License {
  */
 class WesterboerVW921Device : public AbstractDevice
 {
-  FifoBuffer<char, 256u> buffer;
+  StaticFifoBuffer<char, 256u> buffer;
 
 public:
   virtual bool DataReceived(const void *data, size_t length,

@@ -5,10 +5,10 @@ PROGRAM_NAME = XCSoar
 endif
 
 DIALOG_SOURCES = \
-	$(SRC)/Dialogs/XML.cpp \
 	$(SRC)/Dialogs/Inflate.cpp \
 	$(SRC)/Dialogs/Message.cpp \
 	$(SRC)/Dialogs/ListPicker.cpp \
+	$(SRC)/Dialogs/ProgressDialog.cpp \
 	$(SRC)/Dialogs/JobDialog.cpp \
 	$(SRC)/Dialogs/WidgetDialog.cpp \
 	$(SRC)/Dialogs/FileManager.cpp \
@@ -246,6 +246,7 @@ XCSOAR_SOURCES := \
 	$(SRC)/Computer/GlideComputer.cpp \
 	$(SRC)/Computer/GlideComputerBlackboard.cpp \
 	$(SRC)/Computer/GlideComputerAirData.cpp \
+	$(SRC)/Computer/WaveComputer.cpp \
 	$(SRC)/Computer/StatsComputer.cpp \
 	$(SRC)/Computer/RouteComputer.cpp \
 	$(SRC)/Computer/TaskComputer.cpp \
@@ -346,6 +347,7 @@ XCSOAR_SOURCES := \
 	$(SRC)/Menu/MenuBar.cpp \
 	$(SRC)/Menu/ButtonLabel.cpp \
 	$(SRC)/Menu/ExpandMacros.cpp \
+	$(SRC)/Menu/ShowMenuButton.cpp \
 	$(SRC)/InfoBoxes/Content/Factory.cpp \
 	$(SRC)/InfoBoxes/Content/Alternate.cpp \
 	$(SRC)/InfoBoxes/Content/Base.cpp \
@@ -441,6 +443,7 @@ XCSOAR_SOURCES := \
 	$(SRC)/Renderer/WaypointRendererSettings.cpp \
 	$(SRC)/Renderer/WaypointLabelList.cpp \
 	$(SRC)/Renderer/WindArrowRenderer.cpp \
+	$(SRC)/Renderer/WaveRenderer.cpp \
 	$(SRC)/Projection/ChartProjection.cpp \
 	$(SRC)/MapWindow/Items/MapItem.cpp \
 	$(SRC)/MapWindow/Items/List.cpp \
@@ -502,6 +505,7 @@ XCSOAR_SOURCES := \
 	$(SRC)/Topography/TopographyStore.cpp \
 	$(SRC)/Topography/TopographyFileRenderer.cpp \
 	$(SRC)/Topography/TopographyRenderer.cpp \
+	$(SRC)/Topography/Thread.cpp \
 	$(SRC)/Topography/TopographyGlue.cpp \
 	$(SRC)/Topography/XShape.cpp \
 	$(SRC)/Topography/CachedTopographyRenderer.cpp \
@@ -643,6 +647,7 @@ XCSOAR_SOURCES := \
 	$(SRC)/Look/IconLook.cpp \
 	$(SRC)/Look/UnitsLook.cpp \
 	$(SRC)/Look/ThermalAssistantLook.cpp \
+	$(SRC)/Look/WaveLook.cpp \
 	\
 	$(SRC)/Polar/PolarGlue.cpp \
 	$(SRC)/Polar/PolarFileGlue.cpp \
@@ -663,12 +668,11 @@ XCSOAR_SOURCES := \
 	$(SRC)/Device/Driver.cpp \
 	$(SRC)/Device/Declaration.cpp \
 	$(SRC)/Device/Register.cpp \
-	$(SRC)/Device/List.cpp \
+	$(SRC)/Device/MultipleDevices.cpp \
 	$(SRC)/Device/device.cpp \
 	$(SRC)/Device/Port/ConfiguredPort.cpp \
 	$(SRC)/Device/Descriptor.cpp \
 	$(SRC)/Device/Dispatcher.cpp \
-	$(SRC)/Device/All.cpp \
 	$(SRC)/Device/Parser.cpp \
 	$(SRC)/Device/Simulator.cpp \
 	$(SRC)/Device/Util/LineSplitter.cpp \
@@ -712,6 +716,7 @@ XCSOAR_SOURCES += \
 	$(SRC)/Android/SoundUtil.cpp \
 	$(SRC)/Android/TextUtil.cpp \
 	$(SRC)/Android/EventBridge.cpp \
+	$(SRC)/Android/NativePortListener.cpp \
 	$(SRC)/Android/NativeInputListener.cpp \
 	$(SRC)/Android/PortBridge.cpp \
 	$(SRC)/Android/BluetoothHelper.cpp \
@@ -753,6 +758,8 @@ endif
 
 ifeq ($(HAVE_HTTP),y)
 XCSOAR_SOURCES += \
+	$(SRC)/Dialogs/DownloadFilePicker.cpp \
+	$(SRC)/Repository/Glue.cpp \
 	$(SRC)/Renderer/NOAAListRenderer.cpp \
 	$(SRC)/Weather/NOAAGlue.cpp \
 	$(SRC)/Weather/METARParser.cpp \

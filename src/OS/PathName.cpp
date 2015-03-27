@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ Copyright_License {
 
 #include "OS/PathName.hpp"
 #include "Util/StringUtil.hpp"
+#include "Util/StringAPI.hpp"
 
 #include <assert.h>
 #include <string.h>
@@ -32,9 +33,9 @@ gcc_pure
 static const TCHAR *
 LastSeparator(const TCHAR *path)
 {
-  const TCHAR *p = _tcsrchr(path, _T('/'));
+  const auto *p = StringFindLast(path, _T('/'));
 #ifdef WIN32
-  const TCHAR *backslash = _tcsrchr(path, _T('\\'));
+  const auto *backslash = StringFindLast(path, _T('\\'));
   if (p == NULL || backslash > p)
     p = backslash;
 #endif
@@ -56,7 +57,7 @@ IsBaseName(const TCHAR *path)
 #ifdef WIN32
   return _tcspbrk(path, _T("/\\")) == NULL;
 #else
-  return _tcschr(path, _T('/')) == NULL;
+  return StringFind(path, _T('/')) == nullptr;
 #endif
 }
 

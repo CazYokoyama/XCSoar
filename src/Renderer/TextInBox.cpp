@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -122,7 +122,7 @@ TextInBox(Canvas &canvas, const TCHAR *text, PixelScalar x, PixelScalar y,
     y += offset.y;
   }
 
-  if (label_block != NULL && !label_block->check(rc))
+  if (label_block != nullptr && !label_block->check(rc))
     return false;
 
   if (mode.shape == LabelShape::ROUNDED_BLACK ||

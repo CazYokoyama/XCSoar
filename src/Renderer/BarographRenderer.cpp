@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -41,20 +41,20 @@ BarographCaption(TCHAR *sTmp, const FlightStatistics &fs)
   if (!fs.altitude_ceiling.HasResult()) {
     sTmp[0] = _T('\0');
   } else if (fs.altitude_ceiling.GetCount() < 4) {
-    _stprintf(sTmp, _T("%s:\r\n  %.0f-%.0f %s"),
-              _("Working band"),
-              (double)Units::ToUserAltitude(fixed(fs.altitude_base.GetAverageY())),
-              (double)Units::ToUserAltitude(fixed(fs.altitude_ceiling.GetAverageY())),
-              Units::GetAltitudeName());
+    StringFormatUnsafe(sTmp, _T("%s:\r\n  %.0f-%.0f %s"),
+                       _("Working band"),
+                       (double)Units::ToUserAltitude(fixed(fs.altitude_base.GetAverageY())),
+                       (double)Units::ToUserAltitude(fixed(fs.altitude_ceiling.GetAverageY())),
+                       Units::GetAltitudeName());
   } else {
-    _stprintf(sTmp, _T("%s:\r\n  %.0f-%.0f %s\r\n\r\n%s:\r\n  %.0f %s/hr"),
-              _("Working band"),
-              (double)Units::ToUserAltitude(fixed(fs.altitude_base.GetAverageY())),
-              (double)Units::ToUserAltitude(fixed(fs.altitude_ceiling.GetAverageY())),
-              Units::GetAltitudeName(),
-              _("Ceiling trend"),
-              (double)Units::ToUserAltitude(fixed(fs.altitude_ceiling.GetGradient())),
-              Units::GetAltitudeName());
+    StringFormatUnsafe(sTmp, _T("%s:\r\n  %.0f-%.0f %s\r\n\r\n%s:\r\n  %.0f %s/hr"),
+                       _("Working band"),
+                       (double)Units::ToUserAltitude(fixed(fs.altitude_base.GetAverageY())),
+                       (double)Units::ToUserAltitude(fixed(fs.altitude_ceiling.GetAverageY())),
+                       Units::GetAltitudeName(),
+                       _("Ceiling trend"),
+                       (double)Units::ToUserAltitude(fixed(fs.altitude_ceiling.GetGradient())),
+                       Units::GetAltitudeName());
   }
 }
 
@@ -130,7 +130,7 @@ RenderBarographSpark(Canvas &canvas, const PixelRect rc,
   chart.ScaleYFromData(fs.altitude);
   chart.ScaleYFromValue(fixed(0));
 
-  if (_task != NULL) {
+  if (_task != nullptr) {
     ProtectedTaskManager::Lease task(*_task);
     canvas.SelectHollowBrush();
     DrawLegs(chart, task, nmea_info, derived_info, false);
@@ -166,7 +166,7 @@ RenderBarograph(Canvas &canvas, const PixelRect rc,
   chart.ScaleYFromValue(fixed(0));
   chart.ScaleXFromValue(fs.altitude.GetMinX());
 
-  if (_task != NULL) {
+  if (_task != nullptr) {
     ProtectedTaskManager::Lease task(*_task);
     DrawLegs(chart, task, nmea_info, derived_info, false);
   }

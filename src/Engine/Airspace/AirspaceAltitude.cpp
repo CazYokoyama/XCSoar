@@ -1,7 +1,7 @@
 /* Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -60,6 +60,7 @@ AirspaceAltitude::IsBelow(const AltitudeState &state, const fixed margin) const
 fixed
 AirspaceAltitude::GetAltitude(const AltitudeState &state) const
 {
+  // TODO: check if state.altitude_agl is valid
   return reference == AltitudeReference::AGL
     ? altitude_above_terrain + (state.altitude - state.altitude_agl)
     : altitude;

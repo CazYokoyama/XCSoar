@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -23,14 +23,15 @@ Copyright_License {
 
 #include "StatusMessage.hpp"
 #include "Profile/ProfileKeys.hpp"
+#include "Util/StringAPI.hpp"
 #include "Util/EscapeBackslash.hpp"
 #include "Util/NumberParser.hpp"
 #include "IO/ConfiguredFile.hpp"
+#include "IO/LineReader.hpp"
 
 #include <memory>
 
 #include <stdio.h>
-#include <string.h>
 
 static constexpr StatusMessage default_status_messages[] = {
 #include "Status_defaults.cpp"
@@ -64,7 +65,7 @@ StatusMessageList::LoadFile()
 static bool
 parse_assignment(TCHAR *buffer, const TCHAR *&key, const TCHAR *&value)
 {
-  TCHAR *separator = _tcschr(buffer, '=');
+  auto *separator = StringFind(buffer, '=');
   if (separator == NULL || separator == buffer)
     return false;
 
@@ -98,19 +99,19 @@ StatusMessageList::LoadFile(TLineReader &reader)
           break;
       }
     } else {
-      if (_tcscmp(key, _T("key")) == 0) {
+      if (StringIsEqual(key, _T("key"))) {
         if (current.key == NULL)
           current.key = UnescapeBackslash(value);
-      } else if (_tcscmp(key, _T("sound")) == 0) {
+      } else if (StringIsEqual(key, _T("sound"))) {
         if (current.sound == NULL)
           current.sound = UnescapeBackslash(value);
-      } else if (_tcscmp(key, _T("delay")) == 0) {
+      } else if (StringIsEqual(key, _T("delay"))) {
         TCHAR *endptr;
         unsigned ms = ParseUnsigned(value, &endptr);
         if (endptr > value)
           current.delay_ms = ms;
-      } else if (_tcscmp(key, _T("hide")) == 0) {
-        if (_tcscmp(value, _T("yes")) == 0)
+      } else if (StringIsEqual(key, _T("hide"))) {
+        if (StringIsEqual(value, _T("yes")))
           current.visible = false;
       }
     }
@@ -136,7 +137,7 @@ const StatusMessage *
 StatusMessageList::Find(const TCHAR *key) const
 {
   for (int i = list.size() - 1; i > 0; i--)
-    if (_tcscmp(key, list[i].key) == 0)
+    if (StringIsEqual(key, list[i].key))
       return &list[i];
 
   return NULL;

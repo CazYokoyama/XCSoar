@@ -1,7 +1,7 @@
 /* Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -38,10 +38,10 @@ public:
 
 protected:
   /* virtual methods from AbstractContest */
-  virtual SolverResult Solve(bool exhaustive) override;
-  
+  SolverResult Solve(bool exhaustive) override;
+
   /* virtual methods from OLCTriangle */
-  virtual ContestResult CalculateResult() const;
+  ContestResult CalculateResult() const override;
 };
 
 #endif

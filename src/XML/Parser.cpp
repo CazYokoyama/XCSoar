@@ -29,7 +29,7 @@
 #include "Parser.hpp"
 #include "Node.hpp"
 #include "Util/CharUtil.hpp"
-#include "Util/StringUtil.hpp"
+#include "Util/StringAPI.hpp"
 #include "Util/NumberParser.hpp"
 #include "IO/FileLineReader.hpp"
 
@@ -907,7 +907,7 @@ ReadTextFile(const TCHAR *path, tstring &buffer)
 {
   /* auto-detect the character encoding, to be able to parse XCSoar
      6.0 task files */
-  FileLineReader reader(path, ConvertLineReader::AUTO);
+  FileLineReader reader(path, Charset::AUTO);
   if (reader.error())
     return false;
 

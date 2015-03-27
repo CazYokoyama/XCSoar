@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -72,7 +72,7 @@ WndSymbolButton::OnPaint(Canvas &canvas)
     SymbolRenderer::DrawArrow(canvas, rc, SymbolRenderer::UP);
 
   // Draw arrow symbol instead of v
-  else if (ch == '^' || ch == 'v')
+  else if (ch == 'v')
     SymbolRenderer::DrawArrow(canvas, rc, SymbolRenderer::DOWN);
 
   // Draw symbols instead of + and -

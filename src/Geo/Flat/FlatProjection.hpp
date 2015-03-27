@@ -1,7 +1,7 @@
 /* Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -60,28 +60,30 @@ class FlatProjection {
   fixed approx_scale;
 
 public:
-#ifdef NDEBUG
   FlatProjection() = default;
-#else
-  FlatProjection():center(GeoPoint::Invalid()) {}
-#endif
 
   explicit FlatProjection(const GeoPoint &_center) {
     SetCenter(_center);
   }
 
-protected:
-#ifndef NDEBUG
   bool IsValid() const {
     return center.IsValid();
   }
-#endif
 
-  void SetCenterFast(const GeoPoint &_center) {
-    center = _center;
+  /**
+   * Marks this projection "invalid", i.e. IsValid() will return false
+   * and projection operations are illegal.  This is the opposite of
+   * SetCenter().
+   */
+  void SetInvalid() {
+    center = GeoPoint::Invalid();
   }
 
-public:
+  /**
+   * Sets the new projection center and initialises the projection.
+   *
+   * After returning, IsValid() returns true.
+   */
   void SetCenter(const GeoPoint &_center);
 
   /**

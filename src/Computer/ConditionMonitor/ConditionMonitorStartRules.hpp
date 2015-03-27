@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -37,11 +37,11 @@ public:
     :ConditionMonitor(60, 1), withinMargin(false) {}
 
 protected:
-  virtual bool CheckCondition(const NMEAInfo &basic,
-                              const DerivedInfo &calculated,
-                              const ComputerSettings &settings) override;
-  virtual void Notify();
-  virtual void SaveLast() {}
+  bool CheckCondition(const NMEAInfo &basic,
+                      const DerivedInfo &calculated,
+                      const ComputerSettings &settings) override;
+  void Notify() override;
+  void SaveLast() override {}
 };
 
 #endif

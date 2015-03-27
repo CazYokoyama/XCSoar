@@ -1,7 +1,7 @@
 /* Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -163,8 +163,14 @@ class NativeView extends SurfaceView
 
     /* initialize context and surface */
 
+    final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+    int[] contextAttribList = {
+      EGL_CONTEXT_CLIENT_VERSION, getEglContextClientVersion(),
+      EGL10.EGL_NONE
+    };
+
     context = egl.eglCreateContext(display, closestConfig,
-                                   EGL10.EGL_NO_CONTEXT, null);
+                                   EGL10.EGL_NO_CONTEXT, contextAttribList);
 
     surface = egl.eglCreateWindowSurface(display, closestConfig,
                                          holder, null);
@@ -248,6 +254,8 @@ class NativeView extends SurfaceView
     Log.d(TAG, "sending message to quitHandler");
     quitHandler.sendMessage(quitHandler.obtainMessage());
   }
+
+  protected native int getEglContextClientVersion();
 
   protected native boolean initializeNative(Context context,
                                             int width, int height,

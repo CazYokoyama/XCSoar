@@ -3,7 +3,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@ Copyright_License {
 #ifndef TOPOGRAPHY_XSHAPE_HPP
 #define TOPOGRAPHY_XSHAPE_HPP
 
+#include "Util/ConstBuffer.hpp"
 #include "Geo/GeoBounds.hpp"
 #include "shapelib/mapserver.h"
 #include "shapelib/mapshape.h"
@@ -122,12 +123,8 @@ public:
     return (MS_SHAPE_TYPE)type;
   }
 
-  unsigned get_number_of_lines() const {
-    return num_lines;
-  }
-
-  const unsigned short *get_lines() const {
-    return lines;
+  ConstBuffer<unsigned short> GetLines() const {
+    return { lines, num_lines };
   }
 
 #ifdef ENABLE_OPENGL

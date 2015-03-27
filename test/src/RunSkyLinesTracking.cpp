@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@ Copyright_License {
 #include "Util/NumberParser.hpp"
 #include "Util/StringUtil.hpp"
 #include "DebugReplay.hpp"
+#include "Net/IPv4Address.hpp"
 
 #ifdef HAVE_SKYLINES_TRACKING_HANDLER
 #include "IO/Async/GlobalIOThread.hpp"
@@ -80,7 +81,7 @@ main(int argc, char *argv[])
   const char *host = args.ExpectNext();
   const char *key = args.ExpectNext();
 
-  SocketAddress address;
+  StaticSocketAddress address;
   if (!address.Lookup(host, "5597", SOCK_DGRAM)) {
     fprintf(stderr, "Failed to look up: %s\n", host);
     return EXIT_FAILURE;
@@ -99,8 +100,9 @@ main(int argc, char *argv[])
   client.SetHandler(&handler);
 #endif
 
+  IPv4Address address2(1,2,3,4,1234);
   client.SetKey(ParseUint64(key, NULL, 16));
-  if (!client.Open(address)) {
+  if (!client.Open(address2)) {
     fprintf(stderr, "Failed to create client\n");
     return EXIT_FAILURE;
   }

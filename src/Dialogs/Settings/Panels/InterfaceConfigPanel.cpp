@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@ Copyright_License {
 #include "InterfaceConfigPanel.hpp"
 #include "Profile/Profile.hpp"
 #include "Widget/RowFormWidget.hpp"
+#include "Form/ActionListener.hpp"
 #include "Form/DataField/Enum.hpp"
 #include "Dialogs/Dialogs.h"
 #include "Util/StringUtil.hpp"
@@ -55,7 +56,15 @@ enum ControlIndex {
   HapticFeedback
 };
 
-class InterfaceConfigPanel final : public RowFormWidget {
+class InterfaceConfigPanel final : public RowFormWidget
+#ifndef GNAV
+  , ActionListener
+#endif
+{
+  enum Buttons {
+    FONTS,
+  };
+
 public:
   InterfaceConfigPanel()
     :RowFormWidget(UIGlobals::GetDialogLook()) {}
@@ -65,14 +74,21 @@ public:
   virtual bool Save(bool &changed) override;
   virtual void Show(const PixelRect &rc) override;
   virtual void Hide() override;
+
+#ifndef GNAV
+private:
+  /* methods from ActionListener */
+  void OnAction(int id) override {
+    dlgConfigFontsShowModal();
+  }
+#endif
 };
 
 void
 InterfaceConfigPanel::Show(const PixelRect &rc)
 {
 #ifndef GNAV
-  ConfigPanel::BorrowExtraButton(1, _("Fonts"),
-                                 dlgConfigFontsShowModal);
+  ConfigPanel::BorrowExtraButton(1, _("Fonts"), *this, FONTS);
 #endif
 
   RowFormWidget::Show(rc);
@@ -101,7 +117,7 @@ public:
   void
   Visit(const TCHAR *path, const TCHAR *filename)
   {
-    if (filename != NULL && !df.Exists(filename))
+    if (filename != nullptr && !df.Exists(filename))
       df.addEnumText(filename);
   }
 };
@@ -122,10 +138,10 @@ InterfaceConfigPanel::Prepare(ContainerWindow &parent, const PixelRect &rc)
              settings.display.enable_auto_blank);
 #endif
 
-  AddFileReader(_("Events"),
-                _("The Input Events file defines the menu system and how XCSoar responds to "
-                    "button presses and events from external devices."),
-                ProfileKeys::InputFile, _T("*.xci\0"));
+  AddFile(_("Events"),
+          _("The Input Events file defines the menu system and how XCSoar responds to "
+            "button presses and events from external devices."),
+          ProfileKeys::InputFile, _T("*.xci\0"));
   SetExpertRow(InputFile);
 
 #ifndef HAVE_NATIVE_GETTEXT
@@ -134,14 +150,14 @@ InterfaceConfigPanel::Prepare(ContainerWindow &parent, const PixelRect &rc)
                _("The language options selects translations for English texts to other "
                    "languages. Select English for a native interface or Automatic to localise "
                    "XCSoar according to the system settings."));
-  if (wp != NULL) {
+  if (wp != nullptr) {
     DataFieldEnum &df = *(DataFieldEnum *)wp->GetDataField();
     df.addEnumText(_("Automatic"));
     df.addEnumText(_T("English"));
 
 #ifdef HAVE_BUILTIN_LANGUAGES
     for (const BuiltinLanguage *l = language_table;
-         l->resource != NULL; ++l) {
+         l->resource != nullptr; ++l) {
       StaticString<100> display_string;
       display_string.Format(_T("%s (%s)"), l->name, l->resource);
       df.addEnumText(l->resource, display_string);
@@ -161,17 +177,17 @@ InterfaceConfigPanel::Prepare(ContainerWindow &parent, const PixelRect &rc)
       df.Set(1);
     else if (!StringIsEmpty(value) && !StringIsEqual(value, _T("auto"))) {
       const TCHAR *base = BaseName(value);
-      if (base != NULL)
+      if (base != nullptr)
         df.Set(base);
     }
     wp->RefreshDisplay();
   }
 #endif /* !HAVE_NATIVE_GETTEXT */
 
-  AddFileReader(_("Status message"),
-                _("The status file can be used to define sounds to be played when certain "
-                    "events occur, and how long various status messages will appear on screen."),
-                ProfileKeys::StatusFile, _T("*.xcs\0"));
+  AddFile(_("Status message"),
+          _("The status file can be used to define sounds to be played when certain "
+            "events occur, and how long various status messages will appear on screen."),
+          ProfileKeys::StatusFile, _T("*.xcs\0"));
   SetExpertRow(StatusFile);
 
   AddTime(_("Menu timeout"),
@@ -228,7 +244,7 @@ InterfaceConfigPanel::Save(bool &_changed)
 
 #ifndef HAVE_NATIVE_GETTEXT
   WndProperty *wp = (WndProperty *)&GetControl(LanguageFile);
-  if (wp != NULL) {
+  if (wp != nullptr) {
     DataFieldEnum &df = *(DataFieldEnum *)wp->GetDataField();
 
     TCHAR old_value[MAX_PATH];
@@ -236,7 +252,7 @@ InterfaceConfigPanel::Save(bool &_changed)
       old_value[0] = _T('\0');
 
     const TCHAR *old_base = BaseName(old_value);
-    if (old_base == NULL)
+    if (old_base == nullptr)
       old_base = old_value;
 
     TCHAR buffer[MAX_PATH];
@@ -256,13 +272,13 @@ InterfaceConfigPanel::Save(bool &_changed)
       ContractLocalPath(buffer);
       new_value = buffer;
       new_base = BaseName(new_value);
-      if (new_base == NULL)
+      if (new_base == nullptr)
         new_base = new_value;
       break;
     }
 
-    if (_tcscmp(old_value, new_value) != 0 &&
-        _tcscmp(old_base, new_base) != 0) {
+    if (!StringIsEqual(old_value, new_value) &&
+        !StringIsEqual(old_base, new_base)) {
       Profile::Set(ProfileKeys::LanguageFile, new_value);
       LanguageChanged = changed = true;
     }

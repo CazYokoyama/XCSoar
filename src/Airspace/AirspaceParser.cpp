@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@ Copyright_License {
 #include "Language/Language.hpp"
 #include "Util/CharUtil.hpp"
 #include "Util/StringUtil.hpp"
+#include "Util/StringAPI.hpp"
 #include "Util/NumberParser.hpp"
 #include "Util/Macros.hpp"
 #include "Geo/Math.hpp"
@@ -145,6 +146,7 @@ struct TempAirspaceType
     days_of_operation.SetAll();
     radio = _T("");
     type = OTHER;
+    base = top = AirspaceAltitude();
     points.clear();
     center.longitude = Angle::Zero();
     center.latitude = Angle::Zero();
@@ -331,6 +333,9 @@ ReadAltitude(const TCHAR *buffer, AirspaceAltitude &altitude)
   case FL:
     altitude.reference = AltitudeReference::STD;
     altitude.flight_level = value;
+
+    /* prepare fallback, just in case we have no terrain */
+    altitude.altitude = Units::ToSysUnit(value, Unit::FLIGHT_LEVEL);
     return;
 
   case UNLIMITED:
@@ -341,6 +346,9 @@ ReadAltitude(const TCHAR *buffer, AirspaceAltitude &altitude)
   case SFC:
     altitude.reference = AltitudeReference::AGL;
     altitude.altitude_above_terrain = fixed(-1);
+
+    /* prepare fallback, just in case we have no terrain */
+    altitude.altitude = fixed(0);
     return;
 
   default:
@@ -358,11 +366,17 @@ ReadAltitude(const TCHAR *buffer, AirspaceAltitude &altitude)
   case AGL:
     altitude.reference = AltitudeReference::AGL;
     altitude.altitude_above_terrain = value;
+
+    /* prepare fallback, just in case we have no terrain */
+    altitude.altitude = value;
     return;
 
   case STD:
     altitude.reference = AltitudeReference::STD;
     altitude.flight_level = Units::ToUserUnit(value, Unit::FLIGHT_LEVEL);
+
+    /* prepare fallback, just in case we have no QNH */
+    altitude.altitude = value;
     return;
 
   default:
@@ -486,7 +500,7 @@ ParseArcPoints(const TCHAR *buffer, TempAirspaceType &temp_area)
     return false;
 
   // Skip comma character
-  const TCHAR* comma = _tcschr(buffer, ',');
+  const auto *comma = StringFind(buffer, ',');
   if (!comma)
     return false;
 
@@ -548,7 +562,7 @@ ParseLine(Airspaces &airspace_database, TCHAR *line,
   const TCHAR *value;
 
   // Strip comments
-  TCHAR *comment = _tcschr(line, _T('*'));
+  auto *comment = StringFind(line, _T('*'));
   if (comment != nullptr)
     *comment = _T('\0');
 
@@ -793,7 +807,7 @@ ParseLineTNP(Airspaces &airspace_database, TCHAR *line,
              TempAirspaceType &temp_area, bool &ignore)
 {
   // Strip comments
-  TCHAR *comment = _tcschr(line, _T('*'));
+  auto *comment = StringFind(line, _T('*'));
   if (comment != nullptr)
     *comment = _T('\0');
 

@@ -2,7 +2,7 @@
 Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
-  Copyright (C) 2000-2014 The XCSoar Project
+  Copyright (C) 2000-2015 The XCSoar Project
   A detailed list of copyright holders can be found in the file "AUTHORS".
 
   This program is free software; you can redistribute it and/or
@@ -67,10 +67,6 @@ class Canvas {
 protected:
   RasterPoint offset;
   PixelSize size;
-
-#ifdef USE_GLSL
-  glm::mat4 projection_matrix;
-#endif
 
   Pen pen;
   Brush brush;
@@ -234,7 +230,7 @@ public:
 
   void DrawOutlineRectangle(int left, int top, int right, int bottom,
                             Color color) {
-    color.Set();
+    color.Bind();
 #if defined(HAVE_GLES) && !defined(HAVE_GLES2)
     glLineWidthx(1 << 16);
 #else
