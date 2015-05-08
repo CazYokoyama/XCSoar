@@ -199,11 +199,10 @@ $(eval $(call link-program,TestWrapClock,TEST_WRAP_CLOCK))
 TEST_PROFILE_SOURCES = \
 	$(SRC)/LocalPath.cpp \
 	$(SRC)/Profile/Profile.cpp \
-	$(SRC)/Profile/ProfileMap.cpp \
 	$(TEST_SRC_DIR)/tap.c \
 	$(TEST_SRC_DIR)/FakeLogFile.cpp \
 	$(TEST_SRC_DIR)/TestProfile.cpp
-TEST_PROFILE_DEPENDS = MATH IO OS UTIL
+TEST_PROFILE_DEPENDS = PROFILE MATH IO OS UTIL
 $(eval $(call link-program,TestProfile,TEST_PROFILE))
 
 TEST_MAC_CREADY_SOURCES = \
@@ -466,7 +465,6 @@ TEST_UTF8_DEPENDS = UTIL
 $(eval $(call link-program,TestUTF8,TEST_UTF8))
 
 TEST_POLARS_SOURCES = \
-	$(SRC)/Profile/ProfileKeys.cpp \
 	$(SRC)/Units/Descriptor.cpp \
 	$(SRC)/Units/System.cpp \
 	$(SRC)/Polar/Shape.cpp \
@@ -746,6 +744,7 @@ DEBUG_PROGRAM_NAMES = \
 	RunJobDialog \
 	RunAnalysis \
 	RunAirspaceWarningDialog \
+	RunProfileListDialog \
 	TestNotify \
 	FeedNMEA \
 	FeedVega EmulateDevice \
@@ -1821,8 +1820,6 @@ RUN_MAP_WINDOW_SOURCES = \
 	$(SRC)/Formatter/UserUnits.cpp \
 	$(SRC)/Formatter/HexColor.cpp \
 	$(SRC)/Profile/Profile.cpp \
-	$(SRC)/Profile/ProfileKeys.cpp \
-	$(SRC)/Profile/Earth.cpp \
 	$(SRC)/Profile/ComputerProfile.cpp \
 	$(SRC)/Profile/TaskProfile.cpp \
 	$(SRC)/Profile/RouteProfile.cpp \
@@ -2211,7 +2208,6 @@ RUN_ANALYSIS_SOURCES = \
 	$(SRC)/Look/VarioBarLook.cpp \
 	$(SRC)/Look/WaveLook.cpp \
 	$(SRC)/Profile/Profile.cpp \
-	$(SRC)/Profile/ProfileKeys.cpp \
 	$(SRC)/Profile/FontConfig.cpp \
 	$(SRC)/XML/Node.cpp \
 	$(SRC)/XML/Parser.cpp \
@@ -2345,6 +2341,29 @@ RUN_AIRSPACE_WARNING_DIALOG_SOURCES = \
 RUN_AIRSPACE_WARNING_DIALOG_LDADD = $(FAKE_LIBS)
 RUN_AIRSPACE_WARNING_DIALOG_DEPENDS = FORM WIDGET DATA_FIELD SCREEN EVENT RESOURCE IO ASYNC OS THREAD AIRSPACE ZZIP UTIL GEO MATH TIME
 $(eval $(call link-program,RunAirspaceWarningDialog,RUN_AIRSPACE_WARNING_DIALOG))
+
+RUN_PROFILE_LIST_DIALOG_SOURCES = \
+	$(SRC)/Dialogs/ProfileListDialog.cpp \
+	$(SRC)/Dialogs/ProfilePasswordDialog.cpp \
+	$(SRC)/Dialogs/DialogSettings.cpp \
+	$(SRC)/Dialogs/WidgetDialog.cpp \
+	$(SRC)/Dialogs/TextEntry.cpp \
+	$(SRC)/Dialogs/KnobTextEntry.cpp \
+	$(SRC)/Dialogs/TouchTextEntry.cpp \
+	$(SRC)/Dialogs/Message.cpp \
+	$(SRC)/Dialogs/HelpDialog.cpp \
+	$(SRC)/Look/DialogLook.cpp \
+	$(SRC)/Look/ButtonLook.cpp \
+	$(SRC)/LocalPath.cpp \
+	$(SRC)/Formatter/HexColor.cpp \
+	$(MORE_SCREEN_SOURCES) \
+	$(TEST_SRC_DIR)/Fonts.cpp \
+	$(TEST_SRC_DIR)/FakeAsset.cpp \
+	$(TEST_SRC_DIR)/FakeLanguage.cpp \
+	$(TEST_SRC_DIR)/RunProfileListDialog.cpp
+RUN_PROFILE_LIST_DIALOG_LDADD = $(FAKE_LIBS)
+RUN_PROFILE_LIST_DIALOG_DEPENDS = PROFILE FORM WIDGET DATA_FIELD SCREEN EVENT RESOURCE IO ASYNC OS THREAD MATH UTIL
+$(eval $(call link-program,RunProfileListDialog,RUN_PROFILE_LIST_DIALOG))
 
 PLAY_TONE_SOURCES = \
 	$(TEST_SRC_DIR)/PlayTone.cpp

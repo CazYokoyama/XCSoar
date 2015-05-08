@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Max Kellermann <max@duempel.org>
+ * Copyright (C) 2015 Max Kellermann <max@duempel.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,40 +27,61 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef XCSOAR_UTIL_DEBUG_FLAG_HPP
-#define XCSOAR_UTIL_DEBUG_FLAG_HPP
+#ifndef LIGHT_STRING_HXX
+#define LIGHT_STRING_HXX
+
+#include "StringPointer.hxx"
+
+#include <utility>
 
 /**
- * A flag that is only available in the debug build (#ifndef NDEBUG).
- * It is initialised to false.  In the release build, this type
- * disappears without any overhead.
+ * A string pointer whose memory may or may not be managed by this
+ * class.
  */
-struct DebugFlag {
-#ifdef NDEBUG
-  DebugFlag() = default;
+template<typename T=char>
+class LightString : public StringPointer<T> {
+public:
+	typedef typename StringPointer<T>::pointer pointer;
+	typedef typename StringPointer<T>::const_pointer const_pointer;
 
-  constexpr
-  DebugFlag(bool _value) {}
-#else
-  bool value;
+private:
+	pointer allocation;
 
-  constexpr
-  DebugFlag():value(false) {}
+	explicit LightString(pointer _allocation)
+		:StringPointer<T>(_allocation), allocation(_allocation) {}
 
-  constexpr
-  DebugFlag(bool _value):value(_value) {}
+public:
+	explicit LightString(const_pointer _value)
+		:StringPointer<T>(_value), allocation(nullptr) {}
 
-  operator bool() const {
-    return value;
-  }
-#endif
+	LightString(std::nullptr_t n):StringPointer<T>(n), allocation(n) {}
 
-  DebugFlag &operator=(bool _value) {
-#ifndef NDEBUG
-    value = _value;
-#endif
-    return *this;
-  }
+	LightString(LightString &&src)
+		:StringPointer<T>(std::move(src)), allocation(src.Steal()) {}
+
+	~LightString() {
+		delete[] allocation;
+	}
+
+	static LightString Donate(pointer allocation) {
+		return LightString(allocation);
+	}
+
+	static LightString Null() {
+		return nullptr;
+	}
+
+	LightString &operator=(LightString &&src) {
+		*(StringPointer<T> *)this = std::move(src);
+		std::swap(allocation, src.allocation);
+		return *this;
+	}
+
+	pointer Steal() {
+		pointer result = allocation;
+		allocation = nullptr;
+		return result;
+	}
 };
 
 #endif

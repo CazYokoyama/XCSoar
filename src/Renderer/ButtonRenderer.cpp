@@ -22,14 +22,13 @@ Copyright_License {
 */
 
 #include "ButtonRenderer.hpp"
-#include "Screen/Color.hpp"
 #include "Screen/Canvas.hpp"
-#include "Screen/Pen.hpp"
+#include "Screen/Layout.hpp"
 #include "Look/ButtonLook.hpp"
 
 void
-ButtonRenderer::DrawButton(Canvas &canvas, PixelRect rc, bool focused,
-                           bool pressed)
+ButtonFrameRenderer::DrawButton(Canvas &canvas, PixelRect rc,
+                                bool focused, bool pressed) const
 {
   const ButtonLook::StateLook &_look = focused ? look.focused : look.standard;
 
@@ -49,11 +48,17 @@ ButtonRenderer::DrawButton(Canvas &canvas, PixelRect rc, bool focused,
 }
 
 PixelRect
-ButtonRenderer::GetDrawingRect(PixelRect rc, bool pressed)
+ButtonFrameRenderer::GetDrawingRect(PixelRect rc, bool pressed) const
 {
   rc.Grow(-2);
   if (pressed)
     rc.Offset(1, 1);
 
   return rc;
+}
+
+unsigned
+ButtonRenderer::GetMinimumButtonWidth() const
+{
+  return Layout::GetMaximumControlHeight();
 }

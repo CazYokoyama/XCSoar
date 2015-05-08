@@ -167,7 +167,6 @@ class ConfigurationExtraButtons final
 public:
   ConfigurationExtraButtons(const DialogLook &_look)
     :look(_look),
-     button2(look.button), button1(look.button),
      borrowed2(false), borrowed1(false) {}
 
   WndButton &GetButton(unsigned number) {
@@ -197,8 +196,8 @@ protected:
     expert.Create(parent, look, _("Expert"),
                   layout.expert, style, *this, EXPERT);
 
-    button2.Create(parent, _T(""), layout.button2, style);
-    button1.Create(parent, _T(""), layout.button1, style);
+    button2.Create(parent, look.button, _T(""), layout.button2, style);
+    button1.Create(parent, look.button, _T(""), layout.button1, style);
   }
 
   virtual void Show(const PixelRect &rc) override {
@@ -252,7 +251,7 @@ ConfigPanel::BorrowExtraButton(unsigned i, const TCHAR *caption,
     (ConfigurationExtraButtons &)pager->GetExtra();
   WndButton &button = extra.GetButton(i);
   button.SetCaption(caption);
-  button.SetListener(&listener, id);
+  button.SetListener(listener, id);
   button.Show();
 }
 

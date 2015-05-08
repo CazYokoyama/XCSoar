@@ -89,7 +89,32 @@ UIGlobals::GetDialogLook()
 #endif
 
 #ifdef ENABLE_MAIN_WINDOW
-static SingleWindow main_window;
+
+class TestMainWindow : public SingleWindow {
+  Window *full_window;
+
+public:
+  TestMainWindow():full_window(nullptr) {}
+
+  /**
+   * Configure a #Window that will be auto-resize to the full client
+   * area.
+   */
+  void SetFullWindow(Window &w) {
+    full_window = &w;
+  }
+
+protected:
+  void OnResize(PixelSize new_size) override {
+    SingleWindow::OnResize(new_size);
+    Layout::Initialize(new_size);
+
+    if (full_window != nullptr)
+      full_window->Resize(new_size);
+  }
+};
+
+static TestMainWindow main_window;
 
 SingleWindow &
 UIGlobals::GetMainWindow()

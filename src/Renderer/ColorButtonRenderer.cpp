@@ -21,16 +21,17 @@ Copyright_License {
 }
 */
 
-#include "Screen/EditWindow.hpp"
-
-#include <commctrl.h>
-#include <windowsx.h>
+#include "ColorButtonRenderer.hpp"
+#include "Screen/Canvas.hpp"
 
 void
-EditWindow::Create(ContainerWindow &parent, PixelRect rc,
-                   const EditWindowStyle style, size_t max_length) {
-  Window::Create(&parent, WC_EDIT, nullptr, rc, style);
+ColorButtonRenderer::DrawButton(Canvas &canvas, const PixelRect &rc,
+                                bool enabled,
+                                bool focused, bool pressed) const
+{
+  frame_renderer.DrawButton(canvas, rc, focused, pressed);
 
-  if (max_length > 0)
-    ::SendMessage(hWnd, EM_LIMITTEXT, (WPARAM)(max_length - 1), (LPARAM)0);
+  PixelRect fill_rc = rc;
+  fill_rc.Grow(-3);
+  canvas.DrawFilledRectangle(fill_rc, color);
 }

@@ -21,39 +21,29 @@ Copyright_License {
 }
 */
 
-#ifndef XCSOAR_FORM_CUSTOMBUTTON_HPP
-#define XCSOAR_FORM_CUSTOMBUTTON_HPP
+package org.xcsoar;
 
-#include "Form/Button.hpp"
-
-struct DialogLook;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 
 /**
- * This class is used for creating buttons that are custom painted.
- * It is based on the WndButton class.
+ * An #BluetoothAdapter.LeScanCallback implementation that passes
+ * method calls to native code.
  */
-class WndCustomButton : public WndButton
-{
-  const DialogLook &look;
-
-public:
+class NativeLeScanCallback implements BluetoothAdapter.LeScanCallback {
   /**
-   * Constructor of the WndCustomButton class
-   * @param Parent Parent window/ContainerControl
-   * @param Name Name of the button
-   * @param Caption Text on the button
+   * A native pointer.
    */
-  WndCustomButton(ContainerWindow &Parent, const DialogLook &_look,
-                  tstring::const_pointer Caption,
-                  const PixelRect &rc, const ButtonWindowStyle style,
-                  ActionListener &listener, int id);
+  private final long ptr;
 
-protected:
-  /**
-   * The OnPaint event is called when the button needs to be drawn
-   * (derived from PaintWindow)
-   */
-  virtual void OnPaint(Canvas &canvas) override;
-};
+  NativeLeScanCallback(long _ptr) {
+    ptr = _ptr;
+  }
 
-#endif
+  public final native void onLeScan(String address, String name);
+
+  @Override
+  public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+    onLeScan(device.getAddress(), device.getName());
+  }
+}

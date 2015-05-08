@@ -23,13 +23,13 @@ Copyright_License {
 
 #include "KeyboardWidget.hpp"
 #include "Look/ButtonLook.hpp"
+#include "Renderer/SymbolButtonRenderer.hpp"
 #include "Util/StringAPI.hpp"
 #include "Util/StringUtil.hpp"
 #include "Util/CharUtil.hpp"
 #include "Screen/Canvas.hpp"
 #include "Screen/ButtonWindow.hpp"
 #include "Screen/Layout.hpp"
-#include "Form/SymbolButton.hpp"
 
 #include <assert.h>
 #include <string.h>
@@ -40,9 +40,7 @@ static constexpr TCHAR keyboard_letters[] =
 void
 KeyboardWidget::Prepare(ContainerWindow &parent, const PixelRect &rc)
 {
-  shift_button = nullptr;
-
-  OnResize(rc);
+  PrepareSize(rc);
 
   TCHAR caption[] = _T(" ");
 
@@ -59,17 +57,11 @@ KeyboardWidget::Prepare(ContainerWindow &parent, const PixelRect &rc)
   if (show_shift_button) {
     ButtonWindowStyle style;
     style.Hide();
-    shift_button = new WndSymbolButton(parent, look, _T("v"),
-                                       { 0, 0, 16, 16 }, style,
-                                       *this, SHIFT);
+    shift_button.Create(parent, { 0, 0, 16, 16 }, style,
+                        new SymbolButtonRenderer(look, _T("v")),
+                        *this, SHIFT);
   }
   UpdateShiftState();
-}
-
-void
-KeyboardWidget::Unprepare()
-{
-  delete shift_button;
 }
 
 void
@@ -80,8 +72,8 @@ KeyboardWidget::Show(const PixelRect &rc)
   for (unsigned i = 0; i < num_buttons; ++i)
     buttons[i].Show();
 
-  if (shift_button != nullptr)
-    shift_button->Show();
+  if (show_shift_button)
+    shift_button.Show();
 }
 
 void
@@ -90,8 +82,8 @@ KeyboardWidget::Hide()
   for (unsigned i = 0; i < num_buttons; ++i)
     buttons[i].Hide();
 
-  if (shift_button != nullptr)
-    shift_button->Hide();
+  if (show_shift_button)
+    shift_button.Hide();
 }
 
 void
@@ -129,7 +121,7 @@ KeyboardWidget::FindButton(unsigned ch)
  * @param top     Number of pixels from the top (in screen pixels)
  */
 void
-KeyboardWidget::MoveButton(unsigned ch, PixelScalar left, PixelScalar top)
+KeyboardWidget::MoveButton(unsigned ch, int left, int top)
 {
   ButtonWindow *kb = FindButton(ch);
   if (kb)
@@ -146,7 +138,7 @@ KeyboardWidget::MoveButton(unsigned ch, PixelScalar left, PixelScalar top)
  */
 void
 KeyboardWidget::ResizeButton(unsigned ch,
-                              UPixelScalar width, UPixelScalar height)
+                             unsigned width, unsigned height)
 {
   ButtonWindow *kb = FindButton(ch);
   if (kb)
@@ -159,14 +151,14 @@ KeyboardWidget::ResizeButtons()
   for (unsigned i = 0; i < num_buttons; ++i)
     buttons[i].Resize(button_width, button_height);
 
-  if (shift_button != nullptr)
-    shift_button->Resize(button_width, button_height);
+  if (show_shift_button)
+    shift_button.Resize(button_width, button_height);
 }
 
 void
 KeyboardWidget::MoveButtonsToRow(const PixelRect &rc,
                                  const TCHAR *buttons, unsigned row,
-                                 PixelScalar offset)
+                                 int offset)
 {
   if (StringIsEmpty(buttons))
     return;
@@ -206,17 +198,22 @@ KeyboardWidget::MoveButtons(const PixelRect &rc)
     ResizeButton(_T(' '), button_width * 11 / 2, button_height);
   }
 
-  if (shift_button != nullptr)
-    shift_button->Move(rc.left, rc.top + 3 * button_height);
+  if (show_shift_button)
+    shift_button.Move(rc.left, rc.top + 3 * button_height);
+}
+
+void
+KeyboardWidget::PrepareSize(const PixelRect &rc)
+{
+  const PixelSize new_size = rc.GetSize();
+  button_width = new_size.cx / 10;
+  button_height = new_size.cy / 5;
 }
 
 void
 KeyboardWidget::OnResize(const PixelRect &rc)
 {
-  const PixelSize new_size = rc.GetSize();
-  button_width = new_size.cx / 10;
-  button_height = new_size.cy / 5;
-
+  PrepareSize(rc);
   ResizeButtons();
   MoveButtons(rc);
 }
@@ -243,8 +240,8 @@ KeyboardWidget::AddButton(ContainerWindow &parent,
 void
 KeyboardWidget::UpdateShiftState()
 {
-  if (shift_button != nullptr)
-    shift_button->SetCaption(shift_state ? _T("v") : _T("^"));
+  if (show_shift_button)
+    shift_button.SetCaption(shift_state ? _T("v") : _T("^"));
 
   for (unsigned i = 0; i < num_buttons; ++i) {
     unsigned uch = buttons[i].GetCharacter();
@@ -264,7 +261,7 @@ KeyboardWidget::UpdateShiftState()
 void
 KeyboardWidget::OnShiftClicked()
 {
-  assert(shift_button != nullptr);
+  assert(show_shift_button);
 
   shift_state = !shift_state;
   UpdateShiftState();

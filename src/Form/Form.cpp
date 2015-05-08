@@ -96,8 +96,7 @@ WndForm::WndForm(const DialogLook &_look)
    modal_result(0), force(false),
    modeless(false),
    dragging(false),
-   client_area(_look),
-   default_focus(nullptr)
+   client_area(_look)
 {
 }
 
@@ -109,8 +108,7 @@ WndForm::WndForm(SingleWindow &main_window, const DialogLook &_look,
    modal_result(0), force(false),
    modeless(false),
    dragging(false),
-   client_area(_look),
-   default_focus(nullptr)
+   client_area(_look)
 {
   Create(main_window, rc, Caption, AddBorder(style));
 }
@@ -596,7 +594,7 @@ WndForm::OnPaint(Canvas &canvas)
     // JMW todo add here icons?
 
 #ifdef EYE_CANDY
-    if (!IsDithered()) {
+    if (!IsDithered() && is_active) {
       canvas.SetBackgroundTransparent();
       canvas.Stretch(title_rect.left, title_rect.top,
                      title_rect.right - title_rect.left,
@@ -678,10 +676,7 @@ void
 WndForm::SetDefaultFocus()
 {
   SetFocus();
-  if (default_focus)
-    default_focus->SetFocus();
-  else
-    client_area.FocusFirstControl();
+  client_area.FocusFirstControl();
 }
 
 bool

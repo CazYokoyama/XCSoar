@@ -25,21 +25,17 @@ Copyright_License {
 #define XCSOAR_FORM_BUTTON_HPP
 
 #include "Screen/ButtonWindow.hpp"
-#include "Renderer/ButtonRenderer.hpp"
-
-#include <assert.h>
 
 struct ButtonLook;
 class ContainerWindow;
 class ActionListener;
+class ButtonRenderer;
 
 /**
  * This class is used for creating buttons.
- * It is based on the WindowControl class.
  */
 class WndButton : public ButtonWindow {
-protected:
-  ButtonRenderer renderer;
+  ButtonRenderer *renderer;
 
 private:
 #ifdef USE_GDI
@@ -49,18 +45,33 @@ private:
   ActionListener *listener;
 
 public:
+  WndButton(ContainerWindow &parent, const PixelRect &rc,
+            ButtonWindowStyle style, ButtonRenderer *_renderer,
+            ActionListener &_listener, int _id) {
+    Create(parent, rc, style, _renderer, _listener, _id);
+  }
+
   WndButton(ContainerWindow &parent, const ButtonLook &look,
             tstring::const_pointer caption, const PixelRect &rc,
             ButtonWindowStyle style,
-            ActionListener &listener, int id);
+            ActionListener &_listener, int _id) {
+    Create(parent, look, caption, rc, style, _listener, _id);
+  }
 
-  WndButton(const ButtonLook &_look);
+  WndButton():listener(nullptr) {}
 
-  void Create(ContainerWindow &parent,
+  void Create(ContainerWindow &parent, const PixelRect &rc,
+              ButtonWindowStyle style, ButtonRenderer *_renderer);
+
+  void Create(ContainerWindow &parent, const ButtonLook &look,
               tstring::const_pointer caption, const PixelRect &rc,
               ButtonWindowStyle style);
 
-  void Create(ContainerWindow &parent,
+  void Create(ContainerWindow &parent, const PixelRect &rc,
+              ButtonWindowStyle style, ButtonRenderer *_renderer,
+              ActionListener &listener, int id);
+
+  void Create(ContainerWindow &parent, const ButtonLook &look,
               tstring::const_pointer caption, const PixelRect &rc,
               ButtonWindowStyle style,
               ActionListener &listener, int id);
@@ -68,23 +79,24 @@ public:
   /**
    * Set the object that will receive click events.
    */
-  void SetListener(ActionListener *_listener, int _id) {
+  void SetListener(ActionListener &_listener, int _id) {
 #ifdef USE_GDI
     id = _id;
 #else
     SetID(_id);
 #endif
-    listener = _listener;
+    listener = &_listener;
   }
 
   /**
-   * Sets the Caption/Text of the Control and resets the cached text height
-   * (derived from WindowControl)
-   * @param Value The new Caption/Text of the Control
+   * Set a new caption.  This method is a wrapper for
+   * #TextButtonRenderer and may only be used if created with a
+   * #TextButtonRenderer instance.
    */
-  void SetCaption(tstring::const_pointer caption) {
-    SetText(caption);
-  }
+  void SetCaption(tstring::const_pointer caption);
+
+  gcc_pure
+  unsigned GetMinimumWidth() const;
 
   /**
    * Called when the button is clicked (either by mouse or by
@@ -94,6 +106,8 @@ public:
   virtual bool OnClicked() override;
 
 protected:
+  void OnDestroy() override;
+
 #ifdef USE_GDI
   virtual void OnSetFocus() override;
   virtual void OnKillFocus() override;

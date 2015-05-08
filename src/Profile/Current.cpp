@@ -21,32 +21,9 @@ Copyright_License {
 }
 */
 
-#ifndef XCSOAR_FORM_SYMBOLBUTTON_HPP
-#define XCSOAR_FORM_SYMBOLBUTTON_HPP
+#include "Current.hpp"
+#include "Map.hpp"
 
-#include "Form/Button.hpp"
-
-/**
- * This class is used for creating buttons with symbols instead of text.
- * It is based on the WndButton class.
- */
-class WndSymbolButton final : public WndButton
-{
-public:
-  WndSymbolButton(ContainerWindow &Parent, const ButtonLook &look,
-                  tstring::const_pointer Caption,
-                  const PixelRect &rc, const ButtonWindowStyle style,
-                  ActionListener &listener, int id)
-    :WndButton(Parent, look, Caption, rc,
-               style, listener, id) {}
-
-  WndSymbolButton(const ButtonLook &look)
-    :WndButton(look) {}
-
-  using WndButton::Create;
-
-protected:
-  virtual void OnPaint(Canvas &canvas) override;
-};
-
-#endif
+namespace Profile {
+  ProfileMap map;
+}

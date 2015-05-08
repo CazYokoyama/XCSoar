@@ -21,16 +21,18 @@ Copyright_License {
 }
 */
 
-#include "Profile/Profile.hpp"
-#include "Profile/SystemProfile.hpp"
-#include "Profile/ComputerProfile.hpp"
-#include "Profile/UIProfile.hpp"
-#include "Interface.hpp"
+#ifndef XCSOAR_COREGRAPHICS_HPP
+#define XCSOAR_COREGRAPHICS_HPP
 
-void
-Profile::Use()
-{
-  Load(CommonInterface::SetSystemSettings());
-  Load(CommonInterface::SetComputerSettings());
-  Load(CommonInterface::SetUISettings());
-}
+#include <stddef.h>
+#include <tchar.h>
+
+class UncompressedImage;
+
+UncompressedImage
+LoadJPEGFile(const TCHAR *path);
+
+UncompressedImage
+LoadPNG(const void *data, size_t size);
+
+#endif
