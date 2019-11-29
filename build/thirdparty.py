@@ -97,6 +97,8 @@ elif 'apple-darwin' in actual_host_triplet:
     ]
 elif target == 'ANDROID':
     thirdparty_libs = [
+        netcdf,
+        netcdfcxx,
         curl,
         lua,
         proj,
