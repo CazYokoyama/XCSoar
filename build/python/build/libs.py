@@ -108,6 +108,26 @@ freetype = FreeTypeProject(
     ],
 )
 
+wolfssl = AutotoolsProject(
+    # fossies.org no longer keeps wolfssl-4.0.0.tar.gz, but keep it because
+    # AutotoolsProject does not allow wolfssl-4.0.0-stable as directory name,
+    # i.e. untaring v4.0.0-stable.tar.gz creates wolfssl-4.0.0-stable.
+    'http://www.caztech.com/glider/xcsoar/skysight/wolfssl-4.0.0.tar.gz',
+    'https://github.com/wolfSSL/wolfssl/archive/v4.0.0-stable.tar.gz',
+    'f474c8919c5762216a7ba2e98fda3bef50f2e949093c903e0846a795da4533d8',
+    'lib/libwolfssl.a',
+    [
+      '--disable-all',
+      '--disable-shared',
+      '--enable-static',
+      '--enable-sslv3',
+      '--enable-tls13',
+      '--enable-alpn',
+      '--enable-opensslall',
+    ],
+    autogen=True,
+)
+
 curl = AutotoolsProject(
     'http://curl.haxx.se/download/curl-7.70.0.tar.xz',
     'https://github.com/curl/curl/releases/download/curl-7_69_1/curl-7.70.0.tar.xz',
@@ -128,6 +148,7 @@ curl = AutotoolsProject(
         '--disable-threaded-resolver', '--disable-verbose', '--disable-sspi',
         '--disable-crypto-auth', '--disable-ntlm-wb', '--disable-tls-srp', '--disable-cookies',
         '--without-ssl', '--without-gnutls', '--without-nss', '--without-libssh2',
+        '--with-wolfssl',
     ],
     patches=abspath('lib/curl/patches'),
 )
