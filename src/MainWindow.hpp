@@ -13,7 +13,7 @@
 #include <cstdint>
 #include <cassert>
 
-#ifdef KOBO
+#if defined(KOBO) || defined(TOPHAT_FLABOR)
 #define HAVE_SHOW_MENU_BUTTON
 #include "Menu/ShowMenuButton.hpp"
 #endif
@@ -401,6 +401,7 @@ protected:
   bool OnMouseDouble(PixelPoint p) noexcept override;
   bool OnKeyDown(unsigned key_code) noexcept override;
   void OnPaint(Canvas &canvas) noexcept override;
+  PixelRect GetShowMenuButtonRect(const PixelRect rc) noexcept;
 
   /* virtual methods from class TopWindow */
   bool OnClose() noexcept override;

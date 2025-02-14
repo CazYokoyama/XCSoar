@@ -214,7 +214,9 @@ protected:
   /* virtual methods from class Window */
   void OnCreate() override;
   void OnDestroy() noexcept override;
+#ifndef TOPHAT_FLABOR
   bool OnMouseDouble(PixelPoint p) noexcept override;
+#endif
   bool OnMouseMove(PixelPoint p, unsigned keys) noexcept override;
   bool OnMouseDown(PixelPoint p) noexcept override;
   bool OnMouseUp(PixelPoint p) noexcept override;

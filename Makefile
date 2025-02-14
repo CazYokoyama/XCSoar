@@ -86,6 +86,7 @@ include $(topdir)/build/debug.mk
 include $(topdir)/build/abi.mk
 include $(topdir)/build/coverage.mk
 include $(topdir)/build/libintl.mk
+include $(topdir)/build/tophat.mk
 
 ifeq ($(HEADLESS),y)
 else

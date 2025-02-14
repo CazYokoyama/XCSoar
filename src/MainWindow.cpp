@@ -48,15 +48,21 @@ static constexpr unsigned separator_height = 2;
 
 #ifdef HAVE_SHOW_MENU_BUTTON
 [[gnu::pure]]
-static PixelRect
-GetShowMenuButtonRect(const PixelRect rc) noexcept
+PixelRect
+MainWindow::GetShowMenuButtonRect(const PixelRect rc) noexcept
 {
   const unsigned padding = Layout::GetTextPadding();
   const unsigned size = Layout::GetMaximumControlHeight();
   const int right = rc.right - padding;
   const int left = right - size;
+#ifdef TOPHAT_FLABOR
+  const int bottom = rc.bottom - padding -
+    GetLook().map.cruise_mode_icon.GetSize().height - padding;
+  const int top = bottom - size;
+#else
   const int top = rc.top + padding;
   const int bottom = top + size;
+#endif
 
   return PixelRect(left, top, right, bottom);
 }
