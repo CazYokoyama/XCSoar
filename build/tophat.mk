@@ -1,0 +1,5 @@
+TOPHAT_FLABOR ?= n
+
+ifeq ($(TOPHAT_FLABOR),y)
+  TARGET_CPPFLAGS += -DTOPHAT_FLABOR
+endif

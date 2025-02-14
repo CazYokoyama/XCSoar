@@ -50,6 +50,7 @@ GlueMapWindow::OnDestroy() noexcept
   MapWindow::OnDestroy();
 }
 
+#ifndef TOPHAT_FLABOR
 bool
 GlueMapWindow::OnMouseDouble([[maybe_unused]] PixelPoint p) noexcept
 {
@@ -60,7 +61,7 @@ GlueMapWindow::OnMouseDouble([[maybe_unused]] PixelPoint p) noexcept
   InputEvents::ShowMenu();
   ignore_single_click = true;
   return true;
-}
+#endif
 
 bool
 GlueMapWindow::OnMouseMove(PixelPoint p, unsigned keys) noexcept

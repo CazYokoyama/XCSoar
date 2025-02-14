@@ -13,7 +13,7 @@
 #include <cstdint>
 #include <cassert>
 
-#ifdef KOBO
+#if defined(KOBO) || defined(TOPHAT_FLABOR)
 #define HAVE_SHOW_MENU_BUTTON
 #include "Menu/ShowMenuButton.hpp"
 #endif
