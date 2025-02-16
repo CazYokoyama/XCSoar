@@ -24,7 +24,7 @@ Copyright_License {
 #ifndef XCSOAR_TASK_NAV_SLIDER_SHAPE_HPP
 #define XCSOAR_TASK_NAV_SLIDER_SHAPE_HPP
 
-#include "Screen/Point.hpp"
+#include "ui/dim/Point.hpp"
 #include "Math/fixed.hpp"
 #include "Engine/Task/TaskManager.hpp"
 #include "UIGlobals.hpp"
@@ -32,7 +32,7 @@ Copyright_License {
 #include "Look/Look.hpp"
 #include "Engine/Task/Factory/TaskFactoryType.hpp"
 #include "MapSettings.hpp"
-#include "Util/StaticString.hxx"
+#include "util/StaticString.hxx"
 #include "TaskNavSliderStartTime.hpp"
 
 #include <assert.h>
