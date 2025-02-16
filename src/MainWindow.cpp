@@ -24,6 +24,7 @@
 #include "Look/GlobalFonts.hpp"
 #include "Look/DefaultFonts.hpp"
 #include "Look/Look.hpp"
+#include "TophatWidgets/TaskNavSliderShape.hpp"
 #include "Operation/PopupOperationEnvironment.hpp"
 #include "Operation/PluggableOperationEnvironment.hpp"
 #include "Device/MultipleDevices.hpp"
@@ -213,6 +214,8 @@ MainWindow::InitialiseConfigured()
   map->SetMapSettings(CommonInterface::GetMapSettings());
   map->SetUIState(CommonInterface::GetUIState());
   map->Create(*this, map_rect);
+
+  task_nav_slider_widget = new TaskNavSliderWidget();
 
   popup = new PopupMessage(*this, look->dialog, ui_settings);
   popup->Create(map_rect);

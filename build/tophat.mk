@@ -3,3 +3,9 @@ TOPHAT_FLABOR ?= n
 ifeq ($(TOPHAT_FLABOR),y)
   TARGET_CPPFLAGS += -DTOPHAT_FLABOR
 endif
+
+TOPHAT_SRC_DIR = $(SRC)/TophatWidgets
+
+TOPHAT_SOURCES = \
+	$(TOPHAT_SRC_DIR)/TaskNavSliderShape.cpp \
+
