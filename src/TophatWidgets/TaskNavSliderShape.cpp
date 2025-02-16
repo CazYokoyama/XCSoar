@@ -68,15 +68,15 @@ SliderShape::GetSumFontHeight()
 }
 
 SliderShape::VisibilityLevel
-SliderShape::GetVisibilityLevel(Canvas &canvas, RasterPoint poly[])
+SliderShape::GetVisibilityLevel(Canvas &canvas, PixelPoint poly[])
 {
   const PixelRect rc = canvas.GetRect();
-  RasterPoint left_tip = poly[7];
-  RasterPoint left_body = poly[5];
+  PixelPoint left_tip = poly[7];
+  PixelPoint left_body = poly[5];
   left_body.x += Layout::Scale(1);
 
-  RasterPoint right_tip = poly[2];
-  RasterPoint right_body = poly[1];
+  PixelPoint right_tip = poly[2];
+  PixelPoint right_body = poly[1];
   right_body.x -= Layout::Scale(1);
 
   if (rc.IsInside(left_tip) && rc.IsInside(right_tip))
@@ -97,7 +97,7 @@ SliderShape::GetVisibilityLevel(Canvas &canvas, RasterPoint poly[])
 }
 
 void
-SliderShape::DrawBackgroundAll(Canvas &canvas, const RasterPoint poly[])
+SliderShape::DrawBackgroundAll(Canvas &canvas, const PixelPoint poly[])
 {
   /* clear background */
   canvas.SelectWhitePen();
@@ -112,7 +112,7 @@ SliderShape::DrawBackgroundAll(Canvas &canvas, const RasterPoint poly[])
 }
 
 void
-SliderShape::DrawOutlineAll(Canvas &canvas, const RasterPoint poly[],
+SliderShape::DrawOutlineAll(Canvas &canvas, const PixelPoint poly[],
                             bool use_wide_pen)
 {
   /* draw with normal width but don't draw top line */
@@ -130,8 +130,8 @@ SliderShape::DrawOutline(Canvas &canvas, const PixelRect &rc, bool use_wide_pen)
 
   PixelScalar x_offset = rc.left;
   PixelScalar y_offset =  0;
-  RasterPoint poly[8];
-  RasterPoint poly_raw[8];
+  PixelPoint poly[8];
+  PixelPoint poly_raw[8];
 
   unsigned width = nav_slider_look.GetBorderPenWidth(use_wide_pen);
   /* KOBO dithering centers odd shaped widths within 1/2 pixel,
@@ -214,14 +214,14 @@ SliderShape::PaintBackground(Canvas &canvas, unsigned idx,
                              const PixelRect rc_outer)
 {
   // clear area b/c Win32 does not draw background transparently
-  UPixelScalar x_offset = rc_outer.left;
+  unsigned x_offset = rc_outer.left;
   if (idx == 0) {
-    RasterPoint left_mid = GetPoint(7);
+    PixelPoint left_mid = GetPoint(7);
     canvas.DrawFilledRectangle(0, 0, x_offset + left_mid.x, rc_outer.bottom,
                                nav_slider_look.background_brush);
   }
   if (idx == (list_length - 1)) {
-    RasterPoint right_mid = GetPoint(3);
+    PixelPoint right_mid = GetPoint(3);
     canvas.DrawFilledRectangle(x_offset + right_mid.x, 0,
         x_offset + right_mid.x + GetHintWidth() + 1,
         rc_outer.bottom,
@@ -359,7 +359,7 @@ SliderShape::Draw(Canvas &canvas, const PixelRect rc_outer,
 
   SliderStartTime::TypeBuffer type_buffer(_T(""));
   SliderStartTime::TypeBuffer type_buffer_short(_T(""));
-  UPixelScalar width;
+  unsigned width;
   PixelScalar left;
   PixelRect rc = rc_outer;
   rc.left += 3 * GetHintWidth() / 2;
@@ -385,10 +385,10 @@ SliderShape::Draw(Canvas &canvas, const PixelRect rc_outer,
   const unsigned line_one_y_offset = rc.top + GetLine1Y();
   const unsigned line_two_y_offset = rc.top + GetLine2Y();
 
-  UPixelScalar distance_width = 0u;
-  UPixelScalar type_text_width = 0u;
-  UPixelScalar type_text_width_short = 0u;
-  UPixelScalar height_width = 0u;
+  unsigned distance_width = 0u;
+  unsigned type_text_width = 0u;
+  unsigned type_text_width_short = 0u;
+  unsigned height_width = 0u;
   DistanceBuffer distance_buffer(_T(""));
   StaticString<100> height_buffer(_T(""));
   GRBuffer gr_buffer(_T(""));
@@ -496,7 +496,7 @@ SliderShape::Draw(Canvas &canvas, const PixelRect rc_outer,
    */
   canvas.Select(GetNameFont());
   PixelSize icon_size {0, 0};
-  UPixelScalar left_icon;
+  unsigned left_icon;
   // only draw target or turnpoint icon if no checkmark
   const TaskLook &task_look = UIGlobals::GetMapLook().task;
 
@@ -546,15 +546,15 @@ SliderShape::Draw(Canvas &canvas, const PixelRect rc_outer,
         line_two_y_offset + (rc.bottom - line_two_y_offset - icon_size.cy) / 2 - Layout::Scale(1)
         : rc.bottom - icon_size.cy - Layout::Scale(1);
 
-    RasterPoint upper_left(left_icon, rc.top + offsety);
-    RasterPoint lower_right(upper_left.x,
+    PixelPoint upper_left(left_icon, rc.top + offsety);
+    PixelPoint lower_right(upper_left.x,
                             upper_left.y);
     if (canvas.GetRect().IsInside(upper_left) && canvas.GetRect().IsInside(lower_right)) {
       if (draw_checkmark) {
         icon->DrawUpperLeft(canvas, upper_left); // draws from center of icon
       } else {
 
-        RasterPoint pt = upper_left;
+        PixelPoint pt = upper_left;
         unsigned name_height = (unsigned)GetNameFont().GetHeight() / 2;
         pt.y += name_height / 2;
 
@@ -619,11 +619,11 @@ SliderShape::DrawBearing(Canvas &canvas, const PixelRect &rc_outer, const Angle 
   PixelSize icon_bearing_size = icon_bearing->GetSize();
   const PixelScalar vert_margin = points[2].y - icon_bearing_size.cy / 2;
 
-  UPixelScalar x_offset = (direction == BearingDirection::Left) ? 1 :
+  unsigned x_offset = (direction == BearingDirection::Left) ? 1 :
       GetWidth() - icon_bearing_size.cx;
 
-  RasterPoint upper_left(rc_outer.left + x_offset, vert_margin);
-  RasterPoint lower_right(upper_left.x + icon_bearing_size.cx,
+  PixelPoint upper_left(rc_outer.left + x_offset, vert_margin);
+  PixelPoint lower_right(upper_left.x + icon_bearing_size.cx,
                           upper_left.y + icon_bearing_size.cy);
   if (canvas.GetRect().IsInside(upper_left) &&
       canvas.GetRect().IsInside(lower_right)) {
@@ -637,24 +637,24 @@ SliderShape::DrawBearing(Canvas &canvas, const PixelRect &rc_outer, const Angle 
 }
 
 void
-SliderShape::Resize(UPixelScalar map_width)
+SliderShape::Resize(unsigned map_width)
 {
-  const UPixelScalar arrow_point_bluntness = 0;
-  const UPixelScalar raw_total_width = Layout::Scale(360);
+  const unsigned arrow_point_bluntness = 0;
+  const unsigned raw_total_width = Layout::Scale(360);
 
-  UPixelScalar total_height = nav_slider_look.large_font.GetHeight()
+  unsigned total_height = nav_slider_look.large_font.GetHeight()
       + nav_slider_look.medium_font.GetHeight() - Layout::Scale(2);
 
-  total_height = std::max(total_height, UPixelScalar(
+  total_height = std::max(total_height, unsigned(
       bearing_icon_size.cy));
 
-  UPixelScalar raw_hint_width =
+  unsigned raw_hint_width =
       (total_height - arrow_point_bluntness) / 2;  // make 45 degree angle
 
-  raw_hint_width = std::max(raw_hint_width, UPixelScalar(
+  raw_hint_width = std::max(raw_hint_width, unsigned(
       bearing_icon_size.cx / 2));
 
-  total_height = std::max(total_height, UPixelScalar(
+  total_height = std::max(total_height, unsigned(
       raw_hint_width * 2 + arrow_point_bluntness));
 
   SetLine1Y(0u);

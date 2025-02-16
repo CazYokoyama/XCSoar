@@ -25,7 +25,6 @@ Copyright_License {
 #define XCSOAR_TASK_NAV_SLIDER_SHAPE_HPP
 
 #include "ui/dim/Point.hpp"
-#include "Math/fixed.hpp"
 #include "Engine/Task/TaskManager.hpp"
 #include "UIGlobals.hpp"
 #include "Interface.hpp"
@@ -83,7 +82,7 @@ private:
   PixelRect outer_rect;
 
 protected:
-  RasterPoint points[8];
+  PixelPoint points[8];
 
   const DialogLook &dialog_look;
   const NavSliderLook &nav_slider_look;
@@ -94,14 +93,14 @@ protected:
    * height of the bearing icon
    */
   PixelSize bearing_icon_size;
-  UPixelScalar bearing_icon_hor_margin;
+  unsigned bearing_icon_hor_margin;
 
   /**
    * the y positions relative to the top of the slider for each line of text
    */
-  UPixelScalar text_line_one_y;
-  UPixelScalar text_line_two_y;
-  UPixelScalar text_line_three_y;
+  unsigned text_line_one_y;
+  unsigned text_line_two_y;
+  unsigned text_line_three_y;
 
 public:
   SliderShape()
@@ -123,23 +122,23 @@ public:
   unsigned DrawBearing(Canvas &canvas, const PixelRect &rc_outer,
                                const Angle &bearing);
 
-  UPixelScalar GetWidth() const {
+  unsigned GetWidth() const {
     return points[2].x - points[6].x;
   }
 
-  UPixelScalar GetHeight() const {
+  unsigned GetHeight() const {
     return points[4].y - points[0].y + 1;
   }
 
-  UPixelScalar GetHintWidth() const {
+  unsigned GetHintWidth() const {
     return points[2].x - points[4].x;
   }
 
-  UPixelScalar GetOverScrollWidth() const {
+  unsigned GetOverScrollWidth() const {
     return 1 * GetHintWidth();
   }
 
-  const RasterPoint GetPoint(unsigned i) {
+  const PixelPoint GetPoint(unsigned i) {
     assert(i < 8);
     return points[i];
   }
@@ -153,25 +152,25 @@ public:
   /**
    * the y position of line one text for painting
    */
-  void SetLine1Y(UPixelScalar y) {
+  void SetLine1Y(unsigned y) {
     text_line_one_y = y;
   }
-  void SetLine2Y(UPixelScalar y) {
+  void SetLine2Y(unsigned y) {
     text_line_two_y = y;
   }
-  void SetLine3Y(UPixelScalar y) {
+  void SetLine3Y(unsigned y) {
     text_line_three_y = y;
   }
   /**
    * the y position of line one text for painting
    */
-  UPixelScalar GetLine1Y() {
+  unsigned GetLine1Y() {
     return text_line_one_y;
   }
-  UPixelScalar GetLine2Y() {
+  unsigned GetLine2Y() {
     return text_line_two_y;
   }
-  UPixelScalar GetLine3Y() {
+  unsigned GetLine3Y() {
     return text_line_three_y;
   }
   /**
@@ -201,27 +200,27 @@ public:
    * point[0] is left top line of slider
    * @return height to set ItemHeight() of ListControl
    */
-  void Resize(UPixelScalar map_width);
+  void Resize(unsigned map_width);
 
   /**
    * @param poly.  Points of the Shape outline
    * @param canvas
    * @return enum describing what portion of shape is visible in canvas
    */
-  VisibilityLevel GetVisibilityLevel(Canvas &canvas, RasterPoint poly[]);
+  VisibilityLevel GetVisibilityLevel(Canvas &canvas, PixelPoint poly[]);
 
   /**
    * draws white background for entire shape
    * @param poly.  the finalized point set
    */
-  void DrawBackgroundAll(Canvas &canvas, const RasterPoint poly[]);
+  void DrawBackgroundAll(Canvas &canvas, const PixelPoint poly[]);
 
   /**
    * draws the full outline but draws the top with narrow line
    * @param poly.  the finalized point set
    * @use_wide_pen. use the wide pen for the border width
    */
-  void DrawOutlineAll(Canvas &canvas, const RasterPoint poly[],
+  void DrawOutlineAll(Canvas &canvas, const PixelPoint poly[],
                       bool use_wide_pen);
   /**
    * draws the outline of the slider shape
@@ -246,12 +245,12 @@ public:
             bool has_entered, bool has_exited,
             TaskType task_mode, TaskFactoryType task_factory_type,
             unsigned task_size,
-            bool tp_valid, fixed tp_distance, bool distance_valid,
-            fixed tp_altitude_difference,
+            bool tp_valid, double tp_distance, bool distance_valid,
+            double tp_altitude_difference,
             bool altitude_difference_valid,
             Angle delta_bearing,
             bool bearing_valid,
-            fixed gradient,
+            double gradient,
             bool gr_valid,
             bool use_wide_pen,
             bool navigate_to_target);
@@ -270,7 +269,7 @@ public:
    * text to be displayed as the distance plus option prefix
    */
   void GetDistanceText(DistanceBuffer &distance_buffer,
-                       fixed tp_distance, bool distance_valid,
+                       double tp_distance, bool distance_valid,
                        bool navigate_to_target,
                        unsigned task_size,
                        bool is_start,
@@ -279,7 +278,7 @@ public:
   /**
    * text to be displayed for gradient
    */
-  void GetGRText(GRBuffer &gr_buffer, fixed gradient, bool valid);
+  void GetGRText(GRBuffer &gr_buffer, double gradient, bool valid);
 
 #ifdef _WIN32
   /**
