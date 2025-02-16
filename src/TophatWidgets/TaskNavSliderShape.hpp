@@ -109,10 +109,6 @@ public:
    ui_settings(CommonInterface::GetUISettings()),
    wp_renderer_settings(CommonInterface::GetMapSettings().waypoint),
    bearing_icon_hor_margin(0) {
-    const IconLook &icon_look = UIGlobals::GetIconLook();
-    const MaskedIcon *bmp_bearing;
-    bmp_bearing = &icon_look.hBmpBearingRightOne;
-    bearing_icon_size = bmp_bearing->GetSize();
   };
 
   /**
