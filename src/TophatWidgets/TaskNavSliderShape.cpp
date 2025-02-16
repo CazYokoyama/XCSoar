@@ -336,8 +336,7 @@ SliderShape::Draw(Canvas &canvas, const PixelRect rc_outer,
                   fixed gradient,
                   bool gr_valid,
                   bool use_wide_pen,
-                  bool navigate_to_target,
-                  const SliderStartTime &slider_start_time)
+                  bool navigate_to_target)
 {
   /**
    * seconds under max height.
@@ -393,15 +392,6 @@ SliderShape::Draw(Canvas &canvas, const PixelRect rc_outer,
   DistanceBuffer distance_buffer(_T(""));
   StaticString<100> height_buffer(_T(""));
   GRBuffer gr_buffer(_T(""));
-
-  /**
-   * Type
-   * Set type or for US Starts, time under max height
-   * Draw later after deciding whether to use the short buffer
-   **/
-  slider_start_time.GetTypeText(type_buffer, type_buffer_short, task_mode, idx,
-                                task_size, is_start, is_finish, is_aat,
-                                navigate_to_target, show_index);
 
   canvas.Select(GetTypeFont());
   type_text_width = canvas.CalcTextWidth(type_buffer.c_str());

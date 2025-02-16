@@ -33,7 +33,6 @@ Copyright_License {
 #include "Engine/Task/Factory/TaskFactoryType.hpp"
 #include "MapSettings.hpp"
 #include "util/StaticString.hxx"
-#include "TaskNavSliderStartTime.hpp"
 
 #include <assert.h>
 #include <stdint.h>
@@ -255,8 +254,7 @@ public:
             fixed gradient,
             bool gr_valid,
             bool use_wide_pen,
-            bool navigate_to_target,
-            const SliderStartTime &slider_start_time);
+            bool navigate_to_target);
 
 
   /**
