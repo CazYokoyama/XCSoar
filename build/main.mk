@@ -302,6 +302,7 @@ XCSOAR_SOURCES := \
 	$(SRC)/Menu/ButtonLabel.cpp \
 	$(SRC)/Menu/ExpandMacros.cpp \
 	$(SRC)/Menu/ShowMenuButton.cpp \
+	$(SRC)/Menu/ShowZoomButton.cpp \
 	$(SRC)/Pan.cpp \
 	$(SRC)/Input/InputConfig.cpp \
 	$(SRC)/Input/InputDefaults.cpp \

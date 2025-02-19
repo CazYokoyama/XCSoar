@@ -5,7 +5,7 @@
 
 #include "Form/Button.hpp"
 
-class ShowMenuButton : public Button {
+class ShowZoomOutButton : public Button {
 public:
   void Create(ContainerWindow &parent, const PixelRect &rc,
               WindowStyle style=WindowStyle()) noexcept;

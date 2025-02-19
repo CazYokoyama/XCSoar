@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Copyright The XCSoar Project
 
-#include "ShowMenuButton.hpp"
+#include "ShowZoomButton.hpp"
 #include "Renderer/ButtonRenderer.hpp"
 #include "ui/canvas/Canvas.hpp"
 #include "ui/canvas/Pen.hpp"
@@ -13,7 +13,7 @@
 #include "ui/canvas/opengl/Scope.hpp"
 #endif
 
-class ShowMenuButtonRenderer : public ButtonRenderer {
+class ShowZoomOutButtonRenderer : public ButtonRenderer {
 public:
   unsigned GetMinimumButtonWidth() const noexcept override {
     return Layout::GetMinimumControlHeight();
@@ -24,40 +24,36 @@ public:
 };
 
 void
-ShowMenuButton::Create(ContainerWindow &parent, const PixelRect &rc,
+ShowZoomOutButton::Create(ContainerWindow &parent, const PixelRect &rc,
                        WindowStyle style) noexcept
 {
   Button::Create(parent, rc, style,
-                 std::make_unique<ShowMenuButtonRenderer>());
+                 std::make_unique<ShowZoomOutButtonRenderer>());
 }
 
 bool
-ShowMenuButton::OnClicked() noexcept
+ShowZoomOutButton::OnClicked() noexcept
 {
-  InputEvents::ShowMenu();
+  InputEvents::eventZoom(_T("out"));
   return true;
 }
 
 void
-ShowMenuButtonRenderer::DrawButton(Canvas &canvas, const PixelRect &rc,
+ShowZoomOutButtonRenderer::DrawButton(Canvas &canvas, const PixelRect &rc,
                                    ButtonState state) const noexcept
 {
-  const unsigned pen_width = Layout::ScalePenWidth(2);
-  const unsigned padding = Layout::GetTextPadding() + pen_width;
+  const unsigned padding = Layout::GetTextPadding() + Layout::ScalePenWidth(5);
 
-  canvas.Select(Pen(pen_width, COLOR_BLACK));
+  canvas.Select(Pen(Layout::ScalePenWidth(1), COLOR_BLACK));
   canvas.DrawRoundRectangle({rc.left, rc.top, rc.right - 1, rc.bottom - 1},
                             PixelSize{Layout::VptScale(8u)});
 
-  const BulkPixelPoint m[] = {
-    BulkPixelPoint(rc.left + padding, rc.bottom - padding),
-    BulkPixelPoint(rc.left + padding, rc.top + padding),
-    BulkPixelPoint((rc.left + rc.right) / 2, rc.bottom - 2 * padding),
-    BulkPixelPoint(rc.right - padding, rc.top + padding),
-    BulkPixelPoint(rc.right - padding, rc.bottom - padding),
+  canvas.Select(Pen(Layout::ScalePenWidth(2), COLOR_BLACK));
+  const BulkPixelPoint minus[] = {
+    BulkPixelPoint(rc.left + padding, (rc.top + rc.bottom) / 2),
+    BulkPixelPoint(rc.right - padding, (rc.top + rc.bottom) / 2),
   };
-
-  canvas.DrawPolyline(m, ARRAY_SIZE(m));
+  canvas.DrawPolyline(minus, ARRAY_SIZE(minus));
 
   if (state == ButtonState::PRESSED) {
 #ifdef ENABLE_OPENGL
