@@ -2,10 +2,14 @@
 // Copyright The XCSoar Project
 
 #include "NavigatorRenderer.hpp"
+#include "BackendComponents.hpp"
+#include "Components.hpp"
 #include "Interface.hpp"
 #include "Look/Look.hpp"
 #include "ProgressBarRenderer.hpp"
 #include "Screen/Layout.hpp"
+#include "UIGlobals.hpp"
+#include "WaypointIconRenderer.hpp"
 #include "ui/canvas/Canvas.hpp"
 #include "util/StaticString.hxx"
 
@@ -13,6 +17,8 @@
 
 static int progress_bar_width;
 static int progress_bar_bottom_gap;
+static PixelPoint position_waypoint_left;
+static PixelPoint position_waypoint_right;
 
 void
 NavigatorRenderer::DrawProgressTask(const TaskSummary &summary, Canvas &canvas,
@@ -108,5 +114,40 @@ NavigatorRenderer::DrawProgressTask(const TaskSummary &summary, Canvas &canvas,
 
     canvas.Select(pen_waypoint);
     canvas.DrawRectangle(PixelRect{position_waypoint}.WithMargin(w));
+  }
+}
+
+void
+NavigatorRenderer::DrawWaypointsIconsTitle(
+    Canvas &canvas, WaypointPtr waypoint_before, WaypointPtr waypoint_current,
+    unsigned task_size, [[maybe_unused]] const NavigatorLook &look) noexcept
+{
+  const int rc_height = canvas.GetHeight();
+  const int rc_width = canvas.GetWidth();
+
+  const WaypointRendererSettings &waypoint_settings =
+      CommonInterface::GetMapSettings().waypoint;
+  const WaypointLook &waypoint_look = UIGlobals::GetMapLook().waypoint;
+
+  WaypointIconRenderer waypoint_icon_renderer{waypoint_settings, waypoint_look,
+                                              canvas};
+  position_waypoint_left = PixelPoint(PERCENT_OF(5, rc_width),
+				    PERCENT_OF(50, rc_height));
+  position_waypoint_right = PixelPoint(rc_width - PERCENT_OF(5, rc_width),
+					   PERCENT_OF(50, rc_height));
+
+  // CALCULATE REACHABILITY
+  WaypointReachability wr_before{WaypointReachability::UNREACHABLE};
+  WaypointReachability wr_current{WaypointReachability::UNREACHABLE};
+
+  auto *protected_task_manager =
+      backend_components->protected_task_manager.get();
+  if (protected_task_manager != nullptr && task_size > 1) {
+    if (waypoint_before != nullptr)
+      waypoint_icon_renderer.Draw(*waypoint_before, position_waypoint_left,
+                                  wr_before, true);
+    if (waypoint_current != nullptr)
+      waypoint_icon_renderer.Draw(*waypoint_current, position_waypoint_right,
+                                  wr_current, true);
   }
 }
