@@ -12,13 +12,16 @@
 #include "Engine/Task/TaskManager.hpp"
 #include "InfoBoxes/InfoBoxWindow.hpp"
 #include "Input/InputEvents.hpp"
+#include "Renderer/NavigatorRenderer.hpp"
 #include "Screen/Layout.hpp"
 #include "Task/ProtectedTaskManager.hpp"
 #include "UIGlobals.hpp"
 
-NavigatorWindow::NavigatorWindow(const TaskLook &_look_task,
+NavigatorWindow::NavigatorWindow(const NavigatorLook &_look_nav,
+                                 const TaskLook &_look_task,
                                  const InfoBoxLook &_look_infobox) noexcept
-    : look_task(_look_task),
+    : look_nav(_look_nav),
+      look_task(_look_task),
       look_infobox(_look_infobox),
       dragging(false)
 {
@@ -74,6 +77,11 @@ NavigatorWindow::OnPaint(Canvas &canvas) noexcept
   PixelPoint pt_origin{fnw_width * 18 / 100, fnw_height * 1 / 10};
   PixelSize frame_size{fnw_width * 8 / 10, fnw_height * 55 / 100};
   PixelRect frame_navigator_waypoint{pt_origin, frame_size};
+
+  if (tp == TaskType::ORDERED)
+    NavigatorRenderer::DrawProgressTask(
+        CommonInterface::Calculated().common_stats.ordered_summary, canvas,
+        canvas.GetRect(), look_nav, look_task);
 }
 
 void
@@ -227,6 +235,7 @@ NavigatorWidget::Prepare(ContainerWindow &parent, const PixelRect &rc) noexcept
   style.Disable();
 
   navigator_window = std::make_unique<NavigatorWindow>(
+      look.navigator,
       look.map.task, look.info_box);
   navigator_window->Create(parent, rc, style);
   navigator_window->Move(rc);
