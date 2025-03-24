@@ -4,11 +4,15 @@
 #include "NavigatorRenderer.hpp"
 #include "BackendComponents.hpp"
 #include "Components.hpp"
+#include "Formatter/Units.hpp"
+#include "Formatter/UserUnits.hpp"
 #include "Interface.hpp"
+#include "Look/FontDescription.hpp"
 #include "Look/Look.hpp"
 #include "ProgressBarRenderer.hpp"
 #include "Screen/Layout.hpp"
 #include "UIGlobals.hpp"
+#include "UnitSymbolRenderer.hpp"
 #include "WaypointIconRenderer.hpp"
 #include "ui/canvas/Canvas.hpp"
 #include "util/StaticString.hxx"
@@ -19,6 +23,78 @@ static int progress_bar_width;
 static int progress_bar_bottom_gap;
 static PixelPoint position_waypoint_left;
 static PixelPoint position_waypoint_right;
+
+void
+NavigatorRenderer::DrawTaskText(
+    Canvas &canvas, TaskType tp, [[maybe_unused]] const Waypoint &wp_current,
+    const PixelRect &rc, [[maybe_unused]] const NavigatorLook &look_nav,
+    [[maybe_unused]] const InfoBoxLook &look_infobox) noexcept
+{
+  const auto &calculated = CommonInterface::Calculated();
+  const int rc_width = rc.GetWidth();
+  const int rc_height = rc.GetHeight();
+
+  Font font;
+  double ratio_dpi = 1.0 / Layout::vdpi * 100;
+  int font_height = PERCENT_OF(30,
+			       (rc_height -
+				(progress_bar_width +
+				 progress_bar_bottom_gap)));
+  int icon_radius = PERCENT_OF(5, rc_width);
+  int left_end = position_waypoint_left.x + icon_radius;
+  int right_start = position_waypoint_right.x - icon_radius;
+  int for_waypoint_info = right_start - left_end;
+
+  canvas.SetBackgroundTransparent();
+  if (look_nav.inverse)
+    canvas.SetTextColor(COLOR_WHITE);
+  else
+    canvas.SetTextColor(COLOR_BLACK);
+  font.Load(FontDescription(Layout::VptScale(font_height * ratio_dpi)));
+  canvas.Select(font);
+
+  // e_WP_Distance, i.e. draw the distance to the next waypoint
+  static StaticString<20> waypoint_distance_s;
+  double waypoint_distance;
+  if (tp == TaskType::ORDERED)
+    waypoint_distance =
+        calculated.ordered_task_stats.current_leg.vector_remaining.distance;
+  else
+    waypoint_distance =
+        calculated.task_stats.current_leg.vector_remaining.distance;
+  FormatUserDistance(waypoint_distance, waypoint_distance_s.data(), true,
+                     1);
+  int text_pixel = (int)font.TextSize(waypoint_distance_s).width;
+  if (text_pixel <= for_waypoint_info) {
+    PixelSize psSize{for_waypoint_info, rc_height};
+    PixelRect prRect{{0, 0}, psSize};
+    canvas.DrawClippedText({left_end, 0}, prRect,
+			   waypoint_distance_s);
+    left_end += text_pixel;
+    for_waypoint_info -= text_pixel;
+  }
+
+  // e_WP_AltReq
+  static StaticString<20> waypoint_altitude_diff_s;
+  double waypoint_altitude_diff;
+  if (tp == TaskType::ORDERED)
+    waypoint_altitude_diff = calculated.ordered_task_stats.current_leg
+                                 .solution_remaining.GetRequiredAltitude();
+  else
+    waypoint_altitude_diff = calculated.task_stats.current_leg
+                                 .solution_remaining.GetRequiredAltitude();
+  FormatAltitude(waypoint_altitude_diff_s.data(), waypoint_altitude_diff,
+                 Units::GetUserAltitudeUnit(), true);
+  text_pixel = (int)font.TextSize(waypoint_altitude_diff_s).width;
+  if (text_pixel <= for_waypoint_info) {
+    PixelSize psSize{text_pixel, rc_height};
+    PixelRect prRect{{right_start - text_pixel, 0}, psSize};
+    canvas.DrawClippedText({right_start - text_pixel, 0}, prRect,
+			   waypoint_altitude_diff_s);
+    left_end += text_pixel;
+    for_waypoint_info -= text_pixel;
+  }
+}
 
 void
 NavigatorRenderer::DrawProgressTask(const TaskSummary &summary, Canvas &canvas,
@@ -131,6 +207,7 @@ NavigatorRenderer::DrawWaypointsIconsTitle(
 
   WaypointIconRenderer waypoint_icon_renderer{waypoint_settings, waypoint_look,
                                               canvas};
+  /* specify the center of icon */
   position_waypoint_left = PixelPoint(PERCENT_OF(5, rc_width),
 				    PERCENT_OF(50, rc_height));
   position_waypoint_right = PixelPoint(rc_width - PERCENT_OF(5, rc_width),
