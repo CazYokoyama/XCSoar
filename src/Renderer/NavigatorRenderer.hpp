@@ -4,14 +4,27 @@
 #pragma once
 
 #include "Engine/Waypoint/Ptr.hpp"
+#include "Engine/Task/TaskType.hpp"
+#include "Look/InfoBoxLook.hpp"
 
 struct PixelRect;
 struct NavigatorLook;
+struct InfoBoxLook;
 class Canvas;
 struct TaskLook;
 struct TaskSummary;
 
 namespace NavigatorRenderer {
+/**
+* Draw information texts about the current task (ordered task) or
+* the current target (unordered task)
+* e.g. waypoint distance, start time, planned duration time, ...
+*/
+void
+DrawTaskText(Canvas &canvas, TaskType tp, const Waypoint &wp_current,
+	     const PixelRect &rc, const NavigatorLook &look_nav,
+	     const InfoBoxLook &iblook) noexcept;
+
 /**
 * Draw the progress of the current task with presntation of each taskpoint
 */
