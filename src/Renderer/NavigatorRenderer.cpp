@@ -13,6 +13,7 @@
 #include "Screen/Layout.hpp"
 #include "UIGlobals.hpp"
 #include "UnitSymbolRenderer.hpp"
+#include "Waypoint/Waypoint.hpp"
 #include "WaypointIconRenderer.hpp"
 #include "ui/canvas/Canvas.hpp"
 #include "util/StaticString.hxx"
@@ -94,6 +95,30 @@ NavigatorRenderer::DrawTaskText(
     left_end += text_pixel;
     for_waypoint_info -= text_pixel;
   }
+
+  // ---- Next waypoint's name
+  static StaticString<50> waypoint_name_s;
+  waypoint_name_s.Format(_T("%s"), wp_current.name.c_str());
+
+  int font_height_waypoint = rc_height -
+    (progress_bar_width + progress_bar_bottom_gap) - font_height;
+  /* Without PERCENT_OF, font is too big. I don't know why */
+  font.Load(FontDescription(Layout::VptScale(PERCENT_OF(75, font_height_waypoint) *
+					     ratio_dpi)));
+  canvas.Select(font);
+
+  text_pixel = (int)font.TextSize(waypoint_name_s).width;
+  left_end = position_waypoint_left.x + icon_radius;
+  right_start = position_waypoint_right.x - icon_radius;
+  if (text_pixel > right_start - left_end)
+    text_pixel = right_start - left_end;
+  /* locate the name in center of the navigator pane */
+  const int pos_x_text_waypoint{
+    left_end + (right_start - left_end) / 2 - text_pixel / 2};
+  PixelSize psSize = {text_pixel, font_height_waypoint};
+  PixelRect prRect = {{pos_x_text_waypoint, 0}, psSize};
+  canvas.DrawClippedText({pos_x_text_waypoint, font_height}, prRect,
+      waypoint_name_s);
 }
 
 void
